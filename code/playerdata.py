@@ -13,13 +13,24 @@ class Player(pygame.sprite.Sprite):
         
         ## movement ##
         self.direction = pygame.math.Vector2()
-        self.walkspeed = 5
-        self.sprintspeed = 10
         self.movespeed = 0
         
         self.obstacle_sprites = obstacle_sprites
         ## equipment ##
+        self.weapon = None
+        self.spell = None
+        self.accessories = [None, None, None]
+        ## Stats ##
+        self.base_attack = 3
+        self.base_defense = 0
+        self.base_spell = 0
+        self.base_healing = 2
         
+        self.max_health = 20
+        self.current_health = 20
+        
+        self.walkspeed = 5
+        self.sprintspeed = 10
         
     def inputs(self):
         keys = pygame.key.get_pressed()
@@ -70,7 +81,64 @@ class Player(pygame.sprite.Sprite):
                         self.rect.bottom = sprite.rect.top
                     if self.direction.y < 0:
                         self.rect.top = sprite.rect.bottom
+                        
+    def equip_accessory_to_slot(self, item, slot_index, inventory):
+        old = self.accessories[slot_index]
+        self.accessories[slot_index] = item
+        
+        item.quantity -= 1
+        if item.quantity <=0:
+            inventory.remove_item(item)
+        
+        if old:
+            inventory.add_item(old)
                             
     def update(self):
         self.inputs()
         self.move(self.movespeed)
+        
+    @property
+    def attack(self):
+        total = self.base_attack
+        if self.weapon:
+            total += self.weapon.stat_bonus.get("attack", 0)
+        for acc in self.accessories:
+            if acc:
+                total += acc.stat_bonus.get("attack", 0)
+        return total
+
+    @property
+    def defense(self):
+        total = self.base_defense
+        for acc in self.accessories:
+            if acc:
+                total += acc.stat_bonus.get("defence", 0)
+        return total
+    
+    @property
+    def spell_dmg(self):
+        total = self.base_spell
+        if self.spell:
+            total += self.spell.stat_bonus.get("spell", 0)
+        for acc in self.accessories:
+            if acc:
+                total += acc.stat_bonus.get("spell", 0)
+        return total
+    
+    @property
+    def healing(self):
+        total = self.base_healing
+        if self.spell:
+            total += self.spell.stat_bonus.get("healing", 0)
+        for acc in self.accessories:
+            if acc:
+                total += acc.stat_bonus.get("healing", 0)
+        return total
+    
+    @property
+    def health(self):
+        total = self.base_health
+        for acc in self.accessories:
+            if acc:
+                total += acc.stat_bonus.get("health", 0)
+        return total
