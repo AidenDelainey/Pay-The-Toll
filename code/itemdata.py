@@ -25,7 +25,15 @@ class WorldItem(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         
 ITEM_DATABASE = {
-    
+    "template": {
+        "name": " ",
+        "description": " ",
+        "type": " ",
+        "stats": {},
+        "stackable": False,
+        "sprite": " ",
+        }
+    ,
     "test_weapon": {
         "name": "TESTW",
         "description": "TEST ALMIGHTY WEAPON",
@@ -48,7 +56,8 @@ ITEM_DATABASE = {
     "name": "TESTAH",
         "description": "TEST ALMIGHTY HEAL",
         "type": "accessory",
-        "stats": {"healing": 999},
+        "stats": {"healing": 999,
+                  "spell": 999},
         "stackable": False,
         "sprite": "not implemneted",
         }
@@ -79,5 +88,33 @@ ITEM_DATABASE = {
         "stackable": False,
         "sprite": "not implemented",
         }
-
+    ,
+    "wooden_wand": {
+        "name": "Wooden Wand",
+        "description": "A small stick imbued with magic. + 2 SPL",
+        "type": "spell",
+        "stats": {"spell": 2,
+                  "healing": 1},
+        "stackable": False,
+        "sprite": "not implemented",
+        }
+    ,
+    "simple_bracers": {
+        "name": "Simple Bracers ",
+        "description": "A simple pair of bracers +3 DEF +5 HP",
+        "type": "accessory",
+        "stats": {"defence": 3,
+                  "health": 5},
+        "stackable": False,
+        "sprite": " ",
+        }
+    ,
+    "silver_ring": {
+        "name": "Silver Ring",
+        "description": "A ring made of silver +3 HEL",
+        "type": "accessory",
+        "stats": {"healing": 3},
+        "stackable": False,
+        "sprite": " ",
+        }
     }
