@@ -1,4 +1,4 @@
-##########player data###########3
+##########player data###########
 import pygame
 from settings import *
 
@@ -21,13 +21,15 @@ class Player(pygame.sprite.Sprite):
         self.spell = None
         self.accessories = [None, None, None]
         ## Stats ##
-        self.base_attack = 3
-        self.base_defense = 0
-        self.base_spell = 0
-        self.base_healing = 2
+        self.base_stats = {
+            "attack": 3,
+            "defence": 0,
+            "spell" : 0,
+            "healing": 2,
+            "health": 20
+            }
         
-        self.max_health = 20
-        self.current_health = 20
+        self.current_health = 10
         
         self.walkspeed = 5
         self.sprintspeed = 10
@@ -52,12 +54,10 @@ class Player(pygame.sprite.Sprite):
         elif keys[pygame.K_a]:
             self.direction.x = -1
         else:
-            self.direction.x = 0
-        return(self.movespeed)
-            
+            self.direction.x = 0            
             
     def move(self, movespeed):
-        if self.direction.magnitude() != 0:
+        if self.direction.length_squared() > 0:
             self.direction = self.direction.normalize()
             
         self.rect.x += self.direction.x * self.movespeed
@@ -66,23 +66,24 @@ class Player(pygame.sprite.Sprite):
         self.collision('vertical')
         
     def collision(self, direction):
-        if direction == 'horizontal':
-            for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.rect):
+        for sprite in self.obstacle_sprites:
+            if sprite.rect.colliderect(self.rect):
+        
+                if direction == 'horizontal':
                     if self.direction.x > 0:
                         self.rect.right = sprite.rect.left
                     if self.direction.x < 0:
                         self.rect.left = sprite.rect.right
                             
-        if direction == 'vertical':
-            for sprite in self.obstacle_sprites:
-                if sprite.rect.colliderect(self.rect):
+                if direction == 'vertical':
                     if self.direction.y > 0:
                         self.rect.bottom = sprite.rect.top
                     if self.direction.y < 0:
                         self.rect.top = sprite.rect.bottom
                         
     def equip_accessory_to_slot(self, item, slot_index, inventory):
+        old_max_hp = self.max_hp
+        
         old = self.accessories[slot_index]
         self.accessories[slot_index] = item
         
@@ -92,53 +93,33 @@ class Player(pygame.sprite.Sprite):
         
         if old:
             inventory.add_item(old)
+        
+        self.rescale_health(old_max_hp)
+        
+        self.old_max_hp = self.max_hp
                             
     def update(self):
         self.inputs()
         self.move(self.movespeed)
+      
+        self.current_health = min(self.current_health, self.max_hp)
+          
+    def rescale_health(self, old_max_hp):
+        if old_max_hp > 0:
+            ratio = self.current_health / old_max_hp
+            self.current_health = ratio * self.max_hp
         
-    @property
-    def attack(self):
-        total = self.base_attack
-        if self.weapon:
-            total += self.weapon.stat_bonus.get("attack", 0)
-        for acc in self.accessories:
-            if acc:
-                total += acc.stat_bonus.get("attack", 0)
+    def get_stat(self, stat):
+        total = self.base_stats.get(stat, 0)
+        
+        equipment = [self.weapon, self.spell] + self.accessories
+
+        for item in equipment:
+            if item:
+                total += item.stat_bonus.get(stat, 0)
+
         return total
 
     @property
-    def defense(self):
-        total = self.base_defense
-        for acc in self.accessories:
-            if acc:
-                total += acc.stat_bonus.get("defence", 0)
-        return total
-    
-    @property
-    def spell_dmg(self):
-        total = self.base_spell
-        if self.spell:
-            total += self.spell.stat_bonus.get("spell", 0)
-        for acc in self.accessories:
-            if acc:
-                total += acc.stat_bonus.get("spell", 0)
-        return total
-    
-    @property
-    def healing(self):
-        total = self.base_healing
-        if self.spell:
-            total += self.spell.stat_bonus.get("healing", 0)
-        for acc in self.accessories:
-            if acc:
-                total += acc.stat_bonus.get("healing", 0)
-        return total
-    
-    @property
-    def health(self):
-        total = self.base_health
-        for acc in self.accessories:
-            if acc:
-                total += acc.stat_bonus.get("health", 0)
-        return total
+    def max_hp(self):
+        return self.get_stat("health")
