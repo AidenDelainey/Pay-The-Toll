@@ -1,7 +1,8 @@
 import pygame
-import os
+from settings import *
 
 pygame.init()
+
 BG_COLOR = (120, 120, 120)
 PANEL_COLOR = (230, 210, 160)
 BORDER_COLOR = (90, 45, 0)
@@ -9,11 +10,15 @@ SLOT_COLOR = (190, 170, 120)
 HIGHLIGHT_COLOR = (200, 185, 130)
 TEXT_COLOR = (20, 20, 20)
 
+font_path = os.path.join("..", "font", "pixel font.ttf")
+sound_path = os.path.join("..","sound")
 
+equip_item_snd = pygame.mixer.Sound(os.path.join(sound_path, "item equip.mp3"))
+hover_item_snd = pygame.mixer.Sound(os.path.join(sound_path, "item hover.mp3"))
 
-TITLE_FONT = pygame.font.SysFont("arial", 28, bold=True)
-UI_FONT = pygame.font.SysFont("arial", 20)
-
+TITLE_FONT = pygame.font.Font(font_path, 28,)
+UI_FONT = pygame.font.Font(font_path, 20)
+ACC_FONT = pygame.font.Font(font_path, 15)
 
 class Inventory():
     def __init__(self, player):
@@ -61,11 +66,13 @@ class Inventory():
             self.remove_item(item)
             if old_weapon:
                 self.add_item(old_weapon)
+            equip_item_snd.play()
             return
         if item.type == "spell":
             old_spell = self.player.spell
             self.player.spell = item
             self.remove_item(item)
+            equip_item_snd.play()
             if old_spell:
                 self.add_item(old_spell)
         
@@ -86,13 +93,15 @@ class Inventory():
                 self.player.equip_accessory_to_slot(self.pending_item, acc_slot, self)
                 self.selecting_accessory_slot = False
                 self.pending_item = None
+                equip_item_snd.play()
             return
         
         if event.key == pygame.K_s:
             self.selected_index = min(self.selected_index + 1, len(self.items) - 1)
-
+            hover_item_snd.play()
         elif event.key == pygame.K_w:
             self.selected_index = max(self.selected_index - 1, 0)
+            hover_item_snd.play()
         elif event.key == pygame.K_SPACE:
             self.use_selected()
 # Scroll logic
@@ -174,6 +183,7 @@ class Inventory():
             TITLE_FONT.render("Inventory", True, TEXT_COLOR),
             (self.right_page.x + 20, self.right_page.y + 10))
 
+
     def draw_equipment(self):
         page = self.left_page
         slot_size = 70
@@ -183,57 +193,63 @@ class Inventory():
         start_x = page.x + (page.width - total_width) // 2
         start_y = page.y + 60
 
-        # Weapon
+        # ---------- Weapon Slot ----------
         weapon_rect = pygame.Rect(start_x, start_y, slot_size, slot_size)
         self.draw_slot(weapon_rect, "W" if self.player.weapon else "")
 
-        # Spell
-        spell_rect = pygame.Rect(start_x + slot_size + spacing,
-                                 start_y, slot_size, slot_size)
+        # ---------- Spell Slot ----------
+        spell_rect = pygame.Rect(start_x + slot_size + spacing, start_y, slot_size, slot_size)
         self.draw_slot(spell_rect, "S" if self.player.spell else "")
 
-        # Accessories
+        # ---------- Accessories ----------
         acc_y = start_y + slot_size + 40
         total_acc_width = slot_size * 3 + spacing * 2
         acc_start_x = page.x + (page.width - total_acc_width) // 2
 
         for i in range(3):
-            rect = pygame.Rect(
-                acc_start_x + i * (slot_size + spacing),
-                acc_y,
-                slot_size,
-                slot_size)
-
+            rect = pygame.Rect(acc_start_x + i * (slot_size + spacing), acc_y, slot_size, slot_size)
             label = "A" if self.player.accessories[i] else ""
             self.draw_slot(rect, label)
 
-        # Stats
-        stats_y = acc_y + slot_size + 50
+        # ---------- Health Bar ----------
+        stats_y = acc_y + slot_size + 40
+        bar_x = page.x + 20
+        bar_y = stats_y - 25
+        bar_width = page.width - 40
+        bar_height = 18
 
+        # Use the max_hp property from player
+        ratio = self.player.current_health / self.player.max_hp
+        bg_rect = pygame.Rect(bar_x, bar_y, bar_width, bar_height)
+        hp_rect = pygame.Rect(bar_x, bar_y, bar_width * ratio, bar_height)
+
+        pygame.draw.rect(self.display_surface, (100, 100, 100), bg_rect)
+        pygame.draw.rect(self.display_surface, (200, 0, 0), hp_rect)
+        pygame.draw.rect(self.display_surface, BORDER_COLOR, bg_rect, 2)
+
+        # HP text
+        hp_text_surface = UI_FONT.render(f"{self.player.current_health}/{self.player.max_hp}", True, TEXT_COLOR)
         self.display_surface.blit(
-            UI_FONT.render(f"ATK: {self.player.attack}", True, TEXT_COLOR),
-            (page.x + 20, stats_y))
+            hp_text_surface,
+            (bar_x + bar_width // 2 - hp_text_surface.get_width() // 2, bar_y - 3)
+        )
 
-        self.display_surface.blit(
-            UI_FONT.render(f"DEF: {self.player.defense}", True, TEXT_COLOR),
-            (page.x + 20, stats_y + 30))
+        # ---------- Stats Display ----------
+        stats = [
+            ("ATK", "attack"),
+            ("DEF", "defence"),
+            ("SPL", "spell"),
+            ("HEL", "healing")
+        ]
 
-        self.display_surface.blit(
-            UI_FONT.render(f"SPL: {self.player.spell_dmg}", True, TEXT_COLOR),
-            (page.x + 20, stats_y + 60))
+        for i, (label, stat) in enumerate(stats):
+            text_surface = UI_FONT.render(f"{label}: {self.player.get_stat(stat)}", True, TEXT_COLOR)
+            self.display_surface.blit(text_surface, (page.x + 20, stats_y + i * 30))
 
-        self.display_surface.blit(
-            UI_FONT.render(f"HEL: {self.player.healing}", True, TEXT_COLOR),
-            (page.x + 20, stats_y + 90))
-
-        # Slot selection text
+        # ---------- Accessory slot selection ----------
         if self.selecting_accessory_slot:
-            text = UI_FONT.render("Press 1 / 2 / 3 to choose slot",
-                                  True, TEXT_COLOR)
-            self.display_surface.blit(
-                text,
-                (page.x + 20, page.bottom - 40))
-
+            prompt_surface = ACC_FONT.render("Press 1 / 2 / 3 to choose slot", True, TEXT_COLOR)
+            self.display_surface.blit(prompt_surface, (page.x + 30, page.bottom - 260))
 
     def draw_inventory(self):
         page = self.right_page
@@ -274,6 +290,7 @@ class Inventory():
                     qty_text,
                     (rect.right - 10 - qty_text.get_width(),
                      rect.y + 8))
+        
 
     # =========================
     # HELPER
