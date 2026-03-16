@@ -29,7 +29,7 @@ class Player(pygame.sprite.Sprite):
             "health": 20
             }
         
-        self.current_health = 10
+        self.current_health = 20
         
         self.walkspeed = 5
         self.sprintspeed = 10
@@ -56,7 +56,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.x = 0            
             
-    def move(self, movespeed):
+    def move(self):
         if self.direction.length_squared() > 0:
             self.direction = self.direction.normalize()
             
@@ -100,7 +100,7 @@ class Player(pygame.sprite.Sprite):
                             
     def update(self):
         self.inputs()
-        self.move(self.movespeed)
+        self.move()
       
         self.current_health = min(self.current_health, self.max_hp)
           
