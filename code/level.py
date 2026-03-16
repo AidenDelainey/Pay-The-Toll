@@ -3,9 +3,15 @@ import pygame
 from settings import *
 from tile import Tile
 from itemdata import WorldItem, Item, ITEM_DATABASE
+from combat import CombatSystem
 from playerdata import Player
+from enemy import Enemy
 from inventory import Inventory
 
+menu_music = (os.path.join(sound_path, "menu music.mp3"))
+combat_music = (os.path.join(sound_path, "combat music.mp3"))
+
+ITEM_FONT = pygame.font.Font(font_path, 24)
 inv_open_snd = pygame.mixer.Sound(os.path.join(sound_path, "inventory open.mp3"))
 inv_close_snd = pygame.mixer.Sound(os.path.join(sound_path, "inventory close.mp3"))
 
@@ -28,17 +34,45 @@ class Level:
         self.inventory = Inventory(self.player)
         self.inventory_open = False
         
+        self.nearby_item = None
+        self.ITEM_FONT = pygame.font.Font(font_path, 24)
+        
+        self.game_state = "explore"
+        
+        pygame.mixer.music.load(menu_music)
+        pygame.mixer.music.play(-1)
+        
     def handle_input(self, event):
+        
+        if self.game_state == "combat" and self.combat:
+            self.combat.handle_input(event)
+            return
+
         if event.type == pygame.KEYUP and event.key == pygame.K_TAB:
             self.inventory_open = not self.inventory_open
-            
-            if not self.inventory_open:
-                inv_close_snd.play()
-            else:
-                inv_open_snd.play()
-                
+
             if self.inventory_open:
-                self.inventory.handle_input(event)
+                inv_open_snd.play()
+            else:
+                inv_close_snd.play()
+
+        if event.type == pygame.KEYDOWN:
+            
+            if event.key == pygame.K_f:
+                self.enemy = Enemy("tainted")
+                self.combat = CombatSystem(self.player, self.enemy)
+                self.game_state = "combat"
+                pygame.mixer.music.load(combat_music)
+                pygame.mixer.music.play(-1)
+
+            if event.key == pygame.K_e and self.nearby_item:
+                self.inventory.add_item(self.nearby_item.item_data)
+                self.nearby_item.kill()
+                self.nearby_item = None
+
+        if self.inventory_open:
+            self.inventory.handle_input(event)
+            
         
     def create_map(self):
         for row_index,row in enumerate(WORLD_MAP):
@@ -57,21 +91,42 @@ class Level:
                     WorldItem(pos, item, [self.visable_sprites, self.item_sprites])
                 
     def run(self):
-        self.visable_sprites.custom_draw(self.player)
+        if self.game_state == "explore":
+            self.visable_sprites.custom_draw(self.player)
 
-        if not self.inventory_open:
-            self.visable_sprites.update()
+            if not self.inventory_open:
+                self.visable_sprites.update()
+
+                nearby_items = pygame.sprite.spritecollide(
+                    self.player,
+                    self.item_sprites,
+                    False
+                )
+
+                if nearby_items:
+                    self.nearby_item = nearby_items[0]
+                else:
+                    self.nearby_item = None
+                
+            if self.inventory_open:
+                self.inventory.draw()
+                
+            if self.nearby_item:
+                text = self.ITEM_FONT.render("Press E to pick up", True, (255,255,255))
+                offset_pos = self.nearby_item.rect.topleft - self.visable_sprites.offset
+                text_rect = text.get_rect(midbottom=(offset_pos.x + 16, offset_pos.y - 5))
+                self.display_surface.blit(text, text_rect)
+                
+        elif self.game_state == "combat":
+            if self.combat:
+                self.combat.update()
+                self.combat.draw(self.display_surface)
             
-            collided_items = pygame.sprite.spritecollide(
-                self.player,
-                self.item_sprites,
-                True
-            )
-            for item_sprite in collided_items:
-                self.inventory.add_item(item_sprite.item_data)
-            
-        if self.inventory_open:
-            self.inventory.draw()
+                if self.combat.finished:
+                    self.game_state = "explore"
+                    self.combat = None
+                    pygame.mixer.music.load(menu_music)
+                    pygame.mixer.music.play(-1)
         
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self,):

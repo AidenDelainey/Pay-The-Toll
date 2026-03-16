@@ -9,8 +9,6 @@
 import pygame, sys
 from settings import *
 from level import Level
-menu_music = pygame.mixer.music.load(os.path.join(sound_path, "menu music.mp3"))
-
 
 class Game:
     def __init__(self):
@@ -18,7 +16,6 @@ class Game:
         pygame.mixer.init()
         pygame.font.init()
         
-        pygame.mixer.music.play(-1)
         
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('Game')
