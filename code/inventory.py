@@ -10,9 +10,6 @@ SLOT_COLOR = (190, 170, 120)
 HIGHLIGHT_COLOR = (200, 185, 130)
 TEXT_COLOR = (20, 20, 20)
 
-font_path = os.path.join("..", "font", "pixel font.ttf")
-sound_path = os.path.join("..","sound")
-
 equip_item_snd = pygame.mixer.Sound(os.path.join(sound_path, "item equip.mp3"))
 hover_item_snd = pygame.mixer.Sound(os.path.join(sound_path, "item hover.mp3"))
 
@@ -82,34 +79,37 @@ class Inventory():
             return
                 
     def handle_input(self, event):
-        if self.selecting_accessory_slot:
-            if event.key in [pygame.K_1, pygame.K_2, pygame.K_3]:
-                if event.key == pygame.K_1:
-                    acc_slot = 0
-                elif event.key == pygame.K_2:
-                    acc_slot = 1
-                elif event.key == pygame.K_3:
-                    acc_slot = 2
-                self.player.equip_accessory_to_slot(self.pending_item, acc_slot, self)
-                self.selecting_accessory_slot = False
-                self.pending_item = None
-                equip_item_snd.play()
-            return
-        
-        if event.key == pygame.K_s:
-            self.selected_index = min(self.selected_index + 1, len(self.items) - 1)
-            hover_item_snd.play()
-        elif event.key == pygame.K_w:
-            self.selected_index = max(self.selected_index - 1, 0)
-            hover_item_snd.play()
-        elif event.key == pygame.K_SPACE:
-            self.use_selected()
-# Scroll logic
-        if self.selected_index >= self.scroll_offset + self.max_visible:
-            self.scroll_offset += 1
-        elif self.selected_index < self.scroll_offset:
-            self.scroll_offset -= 1                
-                
+        if event.type == pygame.KEYDOWN:
+            if self.selecting_accessory_slot:
+                if event.key in [pygame.K_1, pygame.K_2, pygame.K_3]:
+                    if event.key == pygame.K_1:
+                        acc_slot = 0
+                    elif event.key == pygame.K_2:
+                        acc_slot = 1
+                    elif event.key == pygame.K_3:
+                        acc_slot = 2
+                    self.player.equip_accessory_to_slot(self.pending_item, acc_slot, self)
+                    self.selecting_accessory_slot = False
+                    self.pending_item = None
+                    equip_item_snd.play()
+                return
+            
+            if event.key == pygame.K_s:
+                self.selected_index = min(self.selected_index + 1, len(self.items) - 1)
+                hover_item_snd.play()
+            elif event.key == pygame.K_w:
+                self.selected_index = max(self.selected_index - 1, 0)
+                hover_item_snd.play()
+            elif event.key == pygame.K_SPACE:
+                self.use_selected()
+            elif event.key == pygame.K_p:
+                self.player.current_health = self.player.max_hp
+    # Scroll logic
+            if self.selected_index >= self.scroll_offset + self.max_visible:
+                self.scroll_offset += 1
+            elif self.selected_index < self.scroll_offset:
+                self.scroll_offset -= 1                
+                    
     def draw(self):
         self.draw_book()
         self.draw_equipment()
