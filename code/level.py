@@ -7,7 +7,9 @@ from combat import CombatSystem
 from playerdata import Player
 from enemy import Enemy
 from inventory import Inventory
+from pytmx.util_pygame import load_pygame
 
+tmx_data = load_pygame('../map/test.tmx')
 menu_music = (os.path.join(sound_path, "menu music.mp3"))
 combat_music = (os.path.join(sound_path, "combat music.mp3"))
 
@@ -75,20 +77,40 @@ class Level:
             
         
     def create_map(self):
-        for row_index,row in enumerate(WORLD_MAP):
-            for col_index, col in enumerate(row):
-                x = col_index * TILESIZE
-                y = row_index * TILESIZE
-                pos = (x,y)
-                
-                if col == 'x':
-                    Tile((x,y),[self.visable_sprites,self.obstacle_sprites])
-                elif col == 'p':
-                    self.player = Player((x,y),[self.visable_sprites],self.obstacle_sprites)
-                elif col in ITEM_SPAWNS:
-                    item_name, db_key = ITEM_SPAWNS[col]
-                    item = Item(item_name, ITEM_DATABASE[db_key])
-                    WorldItem(pos, item, [self.visable_sprites, self.item_sprites])
+        for layer in tmx_data.visible_layers:
+            if hasattr(layer, 'data'):
+                for x, y, surf in layer.tiles():
+                   pos =  (x * 64, y * 64)
+                   Tile(pos, surf, self.visable_sprites)
+        for layer in tmx_data.layers:
+            if layer.name in ('collisoins'):
+                for x, y, surf in layer.tiles():
+                    pos = (x * 64, y * 64)
+                    Tile(pos, surf, self.obstacle_sprites)
+            if layer.name in  ('item'):
+                for x, y, gid in layer:
+                    if gid == 0:
+                        continue
+                    
+                    tile_props = tmx_data.get_tile_properties_by_gid(gid)
+                    
+                    if tile_props and "item" in tile_props:
+                        item_key = tile_props["item"]
+                        
+                        if item_key in ITEM_DATABASE:
+                            pos = (x * 64, y * 64)
+                            
+                            item = Item(item_key, ITEM_DATABASE[item_key])
+                            image = tmx_data.get_tile_image_by_gid(gid)
+                            WorldItem(pos, item, [self.visable_sprites, self.item_sprites], image)
+            if layer.name in ('player'):
+                for x, y, surf in layer.tiles():
+                    pos = (x * 64, y * 64)
+                    self.player = Player(pos,[self.visable_sprites],self.obstacle_sprites)
+            if layer.name in ('Objects'):
+                for x, y, surf in layer.tiles():
+                    pos = (x * 64, y * 64)
+                    Tile(pos, surf, self.visable_sprites)
                 
     def run(self):
         if self.game_state == "explore":

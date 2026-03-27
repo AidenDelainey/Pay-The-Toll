@@ -14,13 +14,16 @@ class Item:
         self.quantity = 1
         
 class WorldItem(pygame.sprite.Sprite):
-    def __init__(self, pos, item_data, groups):
+    def __init__(self, pos, item_data, groups, image=None):
         super().__init__(groups)
         
         self.item_data = item_data
         
-        self.image = pygame.Surface((32,32))
-        self.image.fill((200, 180, 50))
+        if image:
+            self.image = pygame.transform.scale(image, (64,64))
+        else:
+            self.image = pygame.Surface((32,32))
+            self.image.fill((200, 180, 50))
         
         self.rect = self.image.get_rect(topleft=pos)
         
