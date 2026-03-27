@@ -8,6 +8,7 @@
 ################ imports ###############
 import pygame, sys
 from settings import *
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
 from level import Level
 
 class Game:
@@ -32,7 +33,7 @@ class Game:
                     sys.exit()
         
                 self.level.handle_input(event)
-
+                
             self.screen.fill('black')
             self.level.run()
             pygame.display.update()
