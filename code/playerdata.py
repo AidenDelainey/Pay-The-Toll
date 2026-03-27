@@ -1,13 +1,14 @@
 ##########player data###########
 import pygame
 from settings import *
+player_img = pygame.image.load(os.path.join(image_path, "player.png")).convert_alpha()
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites):
         super().__init__(groups)
         ## player sprite ##
-        self.image = pygame.Surface((64,64))
-        self.image.fill((255,255,255))
+        self.image = pygame.transform.scale(player_img, (64, 64))
         self.rect = self.image.get_rect(topleft = pos)
         self.radius = 30
         
