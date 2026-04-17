@@ -3,7 +3,7 @@ import pygame
 ##### items #####
 
 class Item:
-    def __init__(self, item_id, data):
+    def __init__(self, item_id, data, image=None):
         self.id = item_id
         self.name = data["name"]
         self.description = data["description"]
@@ -12,6 +12,8 @@ class Item:
         self.sprite = data.get("sprite")
         self.stackable = data.get("stackable", False)
         self.quantity = 1
+        
+        self.image = image
         
 class WorldItem(pygame.sprite.Sprite):
     def __init__(self, pos, item_data, groups, image=None):
@@ -34,7 +36,6 @@ ITEM_DATABASE = {
         "type": " ",
         "stats": {},
         "stackable": False,
-        "sprite": " ",
         }
     ,
     "test_weapon": {
@@ -43,7 +44,6 @@ ITEM_DATABASE = {
         "type": "weapon",
         "stats": {"attack": 999},
         "stackable": False,
-        "sprite": "not implemneted",
         }
     ,
     "test_spell": {
@@ -52,7 +52,6 @@ ITEM_DATABASE = {
         "type": "spell",
         "stats": {"spell": 999},
         "stackable": False,
-        "sprite": "not implemneted",
         }
     ,
     "test_acc_heal": {
@@ -62,7 +61,6 @@ ITEM_DATABASE = {
         "stats": {"healing": 999,
                   "spell": 999},
         "stackable": False,
-        "sprite": "not implemneted",
         }
     ,
     "test_acc_def": {
@@ -71,7 +69,6 @@ ITEM_DATABASE = {
         "type": "accessory",
         "stats": {"defence": 999},
         "stackable": False,
-        "sprite": "not implemneted",
         }
     ,
     "test_acc_health": {
@@ -80,26 +77,23 @@ ITEM_DATABASE = {
         "type": "accessory",
         "stats": {"health": 999},
         "stackable": False,
-        "sprite": "not implemneted",
         }
     ,
     "flimsy_dagger": {
         "name": "Flimsy Dagger",
-        "description": "A very basic dagger. + 3 ATK",
+        "description": "A very basic dagger. +3 ATK",
         "type": "weapon",
-        "stats": {"attack": 5},
+        "stats": {"attack": 3},
         "stackable": False,
-        "sprite": "not implemented",
         }
     ,
     "wooden_wand": {
         "name": "Wooden Wand",
-        "description": "A small stick imbued with magic. + 2 SPL",
+        "description": "Its a stick, but magic + 2 SPL +1 HEL",
         "type": "spell",
         "stats": {"spell": 2,
                   "healing": 1},
         "stackable": False,
-        "sprite": "not implemented",
         }
     ,
     "simple_bracers": {
@@ -109,7 +103,6 @@ ITEM_DATABASE = {
         "stats": {"defence": 3,
                   "health": 5},
         "stackable": False,
-        "sprite": " ",
         }
     ,
     "silver_ring": {
@@ -118,6 +111,49 @@ ITEM_DATABASE = {
         "type": "accessory",
         "stats": {"healing": 3},
         "stackable": False,
-        "sprite": " ",
         }
+    ,
+    "apprentice_cloak": {
+        "name": "Appretice's Cloak",
+        "description": "A cloak with basic magic imbude in its cloth +2 SPL",
+        "type": "accessory",
+        "stats": {"spell": 2},
+        "stackable": False,
+        }
+    ,
+    "metal_fisters": {
+        "name": " Metal Fisters",
+        "description": "'crack' 'crack' ITS FISTING TIME +5 ATK +2 DEF",
+        "type": "weapon",
+        "stats": {"attack": 5,
+                  "defence": 2},
+        "stackable": False,
+        }
+    ,
+    "enchanted_drums": {
+        "name": "Enchanted Drums",
+        "description": "The drums beats reasonate with magical power +3 SPL +2 HEL",
+        "type": "accessory",
+        "stats": {"spell": 3,
+                  "healing": 2},
+        "stackable": False,
+        }
+    ,
+    "wooden_staff": {
+        "name": "Wooden Staff",
+        "description": "Its better then a stick +4 SPL +2 HEL",
+        "type": "spell",
+        "stats": {"spell": 4,
+                  "healing": 2},
+        "stackable": False,
+        }
+    ,
+    "wing_sword": {
+        "name": "Wing Sword",
+        "description": "A feather like sword that can launch enemies away +6 ATK",
+        "type": "weapon",
+        "stats": {"attack": 6},
+        "stackable": False,
+        }
+    ,
     }

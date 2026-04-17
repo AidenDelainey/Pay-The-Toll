@@ -10,7 +10,9 @@ class Player(pygame.sprite.Sprite):
         ## player sprite ##
         self.image = pygame.transform.scale(player_img, (64, 64))
         self.rect = self.image.get_rect(topleft = pos)
+        self.hitbox = self.rect.inflate(0, -24)
         self.radius = 30
+        self.y_sort = True
         
         ## movement ##
         self.direction = pygame.math.Vector2()
@@ -38,6 +40,7 @@ class Player(pygame.sprite.Sprite):
     def inputs(self):
         keys = pygame.key.get_pressed()
         
+        # movement
         if keys[pygame.K_LSHIFT]:
             self.movespeed = self.sprintspeed
         else:
@@ -61,26 +64,27 @@ class Player(pygame.sprite.Sprite):
         if self.direction.length_squared() > 0:
             self.direction = self.direction.normalize()
             
-        self.rect.x += self.direction.x * self.movespeed
+        self.hitbox.x += self.direction.x * self.movespeed
         self.collision('horizontal')
-        self.rect.y += self.direction.y * self.movespeed
+        self.hitbox.y += self.direction.y * self.movespeed
         self.collision('vertical')
+        self.rect.center = self.hitbox.center
         
     def collision(self, direction):
         for sprite in self.obstacle_sprites:
-            if sprite.rect.colliderect(self.rect):
+            if sprite.hitbox.colliderect(self.hitbox):
         
                 if direction == 'horizontal':
                     if self.direction.x > 0:
-                        self.rect.right = sprite.rect.left
+                        self.hitbox.right = sprite.hitbox.left
                     if self.direction.x < 0:
-                        self.rect.left = sprite.rect.right
+                        self.hitbox.left = sprite.hitbox.right
                             
                 if direction == 'vertical':
                     if self.direction.y > 0:
-                        self.rect.bottom = sprite.rect.top
+                        self.hitbox.bottom = sprite.hitbox.top
                     if self.direction.y < 0:
-                        self.rect.top = sprite.rect.bottom
+                        self.hitbox.top = sprite.hitbox.bottom
                         
     def equip_accessory_to_slot(self, item, slot_index, inventory):
         old_max_hp = self.max_hp

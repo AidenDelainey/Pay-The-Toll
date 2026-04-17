@@ -15,7 +15,7 @@ hover_item_snd = pygame.mixer.Sound(os.path.join(sound_path, "item hover.mp3"))
 
 TITLE_FONT = pygame.font.Font(font_path, 28,)
 UI_FONT = pygame.font.Font(font_path, 20)
-ACC_FONT = pygame.font.Font(font_path, 15)
+ACC_FONT = pygame.font.Font(font_path, 20)
 
 class Inventory():
     def __init__(self, player):
@@ -25,15 +25,42 @@ class Inventory():
         self.items = []
         self.selected_index = 0
         self.scroll_offset = 0
-        self.max_visible = 5
+        self.max_visible = 8
+        padding = 20
         
         self.selecting_accessory_slot = False
         self.pending_item = None
         
-        self.cover_rect = pygame.Rect(90, 80, 620, 440)
-        self.left_page = pygame.Rect(110, 100, 280, 400)
-        self.right_page = pygame.Rect(390, 100, 280, 400)
+        screen_w = self.display_surface.get_width()
+        screen_h = self.display_surface.get_height()
         
+        width = int(screen_w * 0.8)
+        height = int(screen_h * 0.8)
+        
+        x = (screen_w - width) // 2
+        y = (screen_h - height) // 2
+        
+        
+        self.cover_rect = pygame.Rect(x, y, width, height)
+        
+        page_width = (self.cover_rect.width - padding * 3) // 2
+        page_height = self.cover_rect.height - padding * 2
+        
+        self.left_page = pygame.Rect(
+            self.cover_rect.x + padding,
+            self.cover_rect.y + padding,
+            page_width,
+            page_height
+        )
+        
+        self.right_page = pygame.Rect(
+            self.left_page.right + padding,
+            self.cover_rect.y + padding,
+            page_width,
+            page_height
+        )
+
+
     def add_item(self, item):
         inv_quantity = 0
         if item.stackable:
@@ -95,11 +122,13 @@ class Inventory():
                 return
             
             if event.key == pygame.K_s:
-                self.selected_index = min(self.selected_index + 1, len(self.items) - 1)
-                hover_item_snd.play()
+                if self.items:
+                    self.selected_index = min(self.selected_index + 1, len(self.items) - 1)
+                    hover_item_snd.play()
             elif event.key == pygame.K_w:
-                self.selected_index = max(self.selected_index - 1, 0)
-                hover_item_snd.play()
+                if self.items:
+                    self.selected_index = max(self.selected_index - 1, 0)
+                    hover_item_snd.play()
             elif event.key == pygame.K_SPACE:
                 self.use_selected()
             elif event.key == pygame.K_p:
@@ -111,6 +140,9 @@ class Inventory():
                 self.scroll_offset -= 1                
                     
     def draw(self):
+        overlay = pygame.Surface(self.display_surface.get_size(), pygame.SRCALPHA)
+        overlay.fill((0, 0, 0, 180))
+        self.display_surface.blit(overlay, (0, 0))
         self.draw_book()
         self.draw_equipment()
         self.draw_inventory()
@@ -186,7 +218,7 @@ class Inventory():
 
     def draw_equipment(self):
         page = self.left_page
-        slot_size = 70
+        slot_size = int(self.left_page.width * 0.25)
         spacing = 20
 
         total_width = slot_size * 2 + spacing
@@ -195,11 +227,11 @@ class Inventory():
 
         # ---------- Weapon Slot ----------
         weapon_rect = pygame.Rect(start_x, start_y, slot_size, slot_size)
-        self.draw_slot(weapon_rect, "W" if self.player.weapon else "")
+        self.draw_slot(weapon_rect, self.player.weapon)
 
         # ---------- Spell Slot ----------
         spell_rect = pygame.Rect(start_x + slot_size + spacing, start_y, slot_size, slot_size)
-        self.draw_slot(spell_rect, "S" if self.player.spell else "")
+        self.draw_slot(spell_rect, self.player.spell)
 
         # ---------- Accessories ----------
         acc_y = start_y + slot_size + 40
@@ -209,7 +241,7 @@ class Inventory():
         for i in range(3):
             rect = pygame.Rect(acc_start_x + i * (slot_size + spacing), acc_y, slot_size, slot_size)
             label = "A" if self.player.accessories[i] else ""
-            self.draw_slot(rect, label)
+            self.draw_slot(rect, self.player.accessories[i])
 
         # ---------- Health Bar ----------
         stats_y = acc_y + slot_size + 40
@@ -249,7 +281,7 @@ class Inventory():
         # ---------- Accessory slot selection ----------
         if self.selecting_accessory_slot:
             prompt_surface = ACC_FONT.render("Press 1 / 2 / 3 to choose slot", True, TEXT_COLOR)
-            self.display_surface.blit(prompt_surface, (page.x + 30, page.bottom - 260))
+            self.display_surface.blit(prompt_surface, (page.x + 40, page.bottom - 360))
 
     def draw_inventory(self):
         page = self.right_page
@@ -277,10 +309,16 @@ class Inventory():
 
             pygame.draw.rect(self.display_surface,
                              color, rect, border_radius=6)
+            
+            if item.image:
+                icon_size = row_height - 8
+                img = pygame.transform.scale(item.image, (icon_size,icon_size))
+                self.display_surface.blit(img, (rect.x + 5, rect.y + 6))
+
 
             # Item name
             text = UI_FONT.render(item.name, True, TEXT_COLOR)
-            self.display_surface.blit(text, (rect.x + 10, rect.y + 8))
+            self.display_surface.blit(text, (rect.x + + icon_size + 10, rect.y + (row_height - text.get_height())//2))
 
             # Quantity
             if item.quantity > 1:
@@ -295,13 +333,17 @@ class Inventory():
     # =========================
     # HELPER
     # =========================
-    def draw_slot(self, rect, label=""):
+    def draw_slot(self, rect, item=None, label=""):
         pygame.draw.rect(self.display_surface,
                          SLOT_COLOR, rect, border_radius=10)
         pygame.draw.rect(self.display_surface,
                          BORDER_COLOR, rect, 3, border_radius=10)
+        if item and hasattr(item, "image") and item.image:
+            img = pygame.transform.scale(item.image, (rect.width - 10, rect.height - 10))
+            self.display_surface.blit(
+                img, (rect.x + 5, rect.y + 5))
 
-        if label:
+        elif label:
             text = UI_FONT.render(label, True, TEXT_COLOR)
             self.display_surface.blit(
                 text,

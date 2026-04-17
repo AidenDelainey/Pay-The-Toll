@@ -14,12 +14,3 @@ font_path = os.path.join("..", "font", "pixel font.ttf")
 sound_path = os.path.join("..","sound")
 combat_path = os.path.join("..","sound","combat")
 image_path = os.path.join("..","image")
-
-WORLD_MAP = [
-[' ',' ',' ',' ',' ',' ','i'],
-[' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','d','h','d'],
-[' '],
-[' '],
-[' ',' ',' ',' ',' ',' ','p'],
-[' ',' ',' ',' ',' ',' ','s',],
-]
