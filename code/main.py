@@ -16,7 +16,7 @@ class Game:
         pygame.init()
         pygame.mixer.init()
         pygame.font.init()
-        
+        self.font = pygame.font.Font(font_path, 20)
         
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('Game')
@@ -36,6 +36,11 @@ class Game:
                 
             self.screen.fill('black')
             self.level.run()
+            
+            fps = self.clock.get_fps()
+            fps_text = self.font.render(f'FPS: {int(fps)}', True, (255, 255, 255))
+            self.screen.blit(fps_text, (10, 10))
+            
             pygame.display.update()
             self.clock.tick(FPS)
             

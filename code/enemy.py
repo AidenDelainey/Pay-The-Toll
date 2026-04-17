@@ -17,11 +17,11 @@ ENEMY_DATABASE = {
     
     "tainted": {
         "name": "Tainted",
-        "health": 20,
+        "health": 40,
         "attack": 4,
         "defence": 1,
         "resistance": {
-            "physical": 0.10,
+            "physical": 0.1,
             "spell": 0.0
         },
         "sprite": "not implemented"

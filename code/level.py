@@ -1,7 +1,7 @@
 ##### basic map ######
 import pygame
 from settings import *
-from tile import Tile
+from tile import Tile, AnimatedTile
 from itemdata import WorldItem, Item, ITEM_DATABASE
 from combat import CombatSystem
 from playerdata import Player
@@ -9,7 +9,7 @@ from enemy import Enemy
 from inventory import Inventory
 from pytmx.util_pygame import load_pygame
 
-tmx_data = load_pygame('../map/test.tmx')
+tmx_data = load_pygame('../map/test2.tmx')
 menu_music = (os.path.join(sound_path, "menu music.mp3"))
 combat_music = (os.path.join(sound_path, "combat music.mp3"))
 
@@ -17,20 +17,13 @@ ITEM_FONT = pygame.font.Font(font_path, 24)
 inv_open_snd = pygame.mixer.Sound(os.path.join(sound_path, "inventory open.mp3"))
 inv_close_snd = pygame.mixer.Sound(os.path.join(sound_path, "inventory close.mp3"))
 
-ITEM_SPAWNS = {
-    "i": ("000", "flimsy_dagger"),
-    "s": ("001", "wooden_wand"),
-    "h": ("002", "simple_bracers"),
-    "d": ("003", "silver_ring")
-    }
-
 class Level:
     def __init__(self):
         self.display_surface = pygame.display.get_surface()
         self.visable_sprites = YSortCameraGroup()
         self.item_sprites = pygame.sprite.Group()
         self.obstacle_sprites = pygame.sprite.Group()
-        
+           
         self.create_map()
         
         self.inventory = Inventory(self.player)
@@ -59,7 +52,6 @@ class Level:
                 inv_close_snd.play()
 
         if event.type == pygame.KEYDOWN:
-            
             if event.key == pygame.K_f:
                 self.enemy = Enemy("tainted")
                 self.combat = CombatSystem(self.player, self.enemy)
@@ -75,42 +67,73 @@ class Level:
         if self.inventory_open:
             self.inventory.handle_input(event)
             
-        
     def create_map(self):
+        tile_width = TILESIZE
+        tile_height = TILESIZE
+
+        # --- STATIC VISUAL LAYERS ---
         for layer in tmx_data.visible_layers:
-            if hasattr(layer, 'data'):
+            if hasattr(layer, 'data') and layer.name != 'animated':
                 for x, y, surf in layer.tiles():
-                   pos =  (x * 64, y * 64)
-                   Tile(pos, surf, self.visable_sprites)
+                    pos = (x * tile_width, y * tile_height)
+                    tile = Tile(pos, surf, self.visable_sprites)
+                    if layer.name in ('Walls', 'wall details'):
+                        tile.y_sort = True
+
+        # --- COLLISIONS ---
         for layer in tmx_data.layers:
-            if layer.name in ('collisoins'):
+            if layer.name == 'collisoins':
                 for x, y, surf in layer.tiles():
-                    pos = (x * 64, y * 64)
+                    pos = (x * tile_width, y * tile_height)
                     Tile(pos, surf, self.obstacle_sprites)
-            if layer.name in  ('item'):
+
+        # --- ITEMS ---
+        for layer in tmx_data.layers:
+            if layer.name == 'item':
                 for x, y, gid in layer:
                     if gid == 0:
                         continue
-                    
                     tile_props = tmx_data.get_tile_properties_by_gid(gid)
-                    
                     if tile_props and "item" in tile_props:
                         item_key = tile_props["item"]
-                        
                         if item_key in ITEM_DATABASE:
-                            pos = (x * 64, y * 64)
-                            
-                            item = Item(item_key, ITEM_DATABASE[item_key])
+                            pos = (x * tile_width, y * tile_height)
                             image = tmx_data.get_tile_image_by_gid(gid)
+                            item = Item(item_key, ITEM_DATABASE[item_key], image)
                             WorldItem(pos, item, [self.visable_sprites, self.item_sprites], image)
-            if layer.name in ('player'):
+
+        # --- PLAYER SPAWN ---
+        for layer in tmx_data.layers:
+            if layer.name == 'player':
                 for x, y, surf in layer.tiles():
-                    pos = (x * 64, y * 64)
-                    self.player = Player(pos,[self.visable_sprites],self.obstacle_sprites)
-            if layer.name in ('Objects'):
+                    pos = (x * tile_width, y * tile_height)
+                    self.player = Player(pos, [self.visable_sprites], self.obstacle_sprites)
+
+        # --- OBJECTS THAT RENDER ON TOP ---
+        for layer in tmx_data.layers:
+            if layer.name == 'Objects':
                 for x, y, surf in layer.tiles():
-                    pos = (x * 64, y * 64)
-                    Tile(pos, surf, self.visable_sprites)
+                    pos = (x * tile_width, y * tile_height)
+                    tile = Tile(pos, surf, self.visable_sprites)
+                    tile.always_on_top = True
+
+        # --- ANIMATED TILES ---
+        for layer_index, layer in enumerate(tmx_data.layers):
+            if layer.name == 'animated':
+                for x, y, gid in layer:
+                    if gid == 0:
+                        continue
+
+                    real_gid = tmx_data.get_tile_gid(x, y, layer_index)
+                    tile_props = tmx_data.get_tile_properties_by_gid(real_gid)
+                    pos = (x * tile_width, y * tile_height)
+
+                    if tile_props and "frames" in tile_props:
+                        frames = tile_props["frames"]
+                        AnimatedTile(pos, frames, tmx_data, self.visable_sprites)
+                    else:
+                        image = tmx_data.get_tile_image_by_gid(real_gid)
+                        Tile(pos, image, self.visable_sprites)
                 
     def run(self):
         if self.game_state == "explore":
@@ -156,8 +179,6 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.display_surface = pygame.display.get_surface()
         self.half_width = self.display_surface.get_width() // 2
         self.half_height = self.display_surface.get_height() // 2
-        
-        
         self.camera_pos = pygame.math.Vector2(0,0)
         
     def custom_draw(self,player):
@@ -169,8 +190,32 @@ class YSortCameraGroup(pygame.sprite.Group):
         
         #getting offset
         self.offset = self.camera_pos
-
-        for sprite in self.sprites():
-            offset_pos = sprite.rect.topleft - self.offset
-            self.display_surface.blit(sprite.image,offset_pos)
+        screen_rect = self.display_surface.get_rect()
         
+        normal = []
+        ysort = []
+        top = []
+
+        #for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
+        for sprite in self.sprites():
+            if getattr(sprite, 'always_on_top', False):
+                top.append(sprite)
+            elif getattr(sprite, 'y_sort', False):
+                ysort.append(sprite)
+            else:
+                normal.append(sprite)
+        
+        for sprite in normal:
+            offset_pos = sprite.rect.topleft - self.offset
+            if screen_rect.colliderect(pygame.Rect(offset_pos, sprite.image.get_size())):
+                self.display_surface.blit(sprite.image, offset_pos)   
+              
+        for sprite in sorted(ysort, key=lambda s: s.rect.centery):
+            offset_pos = sprite.rect.topleft - self.offset
+            if screen_rect.colliderect(pygame.Rect(offset_pos, sprite.image.get_size())):
+                self.display_surface.blit(sprite.image, offset_pos)
+                
+        for sprite in top:
+            offset_pos = sprite.rect.topleft - self.offset
+            if screen_rect.colliderect(pygame.Rect(offset_pos, sprite.image.get_size())):
+                self.display_surface.blit(sprite.image, offset_pos)     
