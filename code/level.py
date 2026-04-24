@@ -5,7 +5,7 @@ from tile import Tile, AnimatedTile
 from itemdata import WorldItem, Item, ITEM_DATABASE
 from combat import CombatSystem
 from playerdata import Player
-from enemy import Enemy
+from enemy import WorldEnemy
 from inventory import Inventory
 from pytmx.util_pygame import load_pygame
 
@@ -23,6 +23,7 @@ class Level:
         self.visable_sprites = YSortCameraGroup()
         self.item_sprites = pygame.sprite.Group()
         self.obstacle_sprites = pygame.sprite.Group()
+        self.enemy_sprites = pygame.sprite.Group()
            
         self.create_map()
         
@@ -36,6 +37,7 @@ class Level:
         
         pygame.mixer.music.load(menu_music)
         pygame.mixer.music.play(-1)
+        self.combat = None
         
     def handle_input(self, event):
         
@@ -52,12 +54,6 @@ class Level:
                 inv_close_snd.play()
 
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_f:
-                self.enemy = Enemy("tainted")
-                self.combat = CombatSystem(self.player, self.enemy)
-                self.game_state = "combat"
-                pygame.mixer.music.load(combat_music)
-                pygame.mixer.music.play(-1)
 
             if event.key == pygame.K_e and self.nearby_item:
                 self.inventory.add_item(self.nearby_item.item_data)
@@ -70,7 +66,7 @@ class Level:
     def create_map(self):
         tile_width = TILESIZE
         tile_height = TILESIZE
-
+        
         # --- STATIC VISUAL LAYERS ---
         for layer in tmx_data.visible_layers:
             if hasattr(layer, 'data') and layer.name != 'animated':
@@ -108,6 +104,25 @@ class Level:
                 for x, y, surf in layer.tiles():
                     pos = (x * tile_width, y * tile_height)
                     self.player = Player(pos, [self.visable_sprites], self.obstacle_sprites)
+            
+        #---ENEMIES ---
+        for layer in tmx_data.layers:
+            if hasattr(layer, "data") and layer.name == "enemies":
+                for x, y, gid in layer:
+                    if gid == 0:
+                        continue
+
+                    tile_props = tmx_data.get_tile_properties_by_gid(gid)
+
+                    if tile_props and "enemy" in tile_props:
+                        pos = (x * TILESIZE, y * TILESIZE)
+                        WorldEnemy(
+                            pos,
+                            tile_props["enemy"],
+                            [self.visable_sprites, self.enemy_sprites],
+                            self.obstacle_sprites,
+                            self.player,
+                            self)
 
         # --- OBJECTS THAT RENDER ON TOP ---
         for layer in tmx_data.layers:
@@ -168,10 +183,18 @@ class Level:
                 self.combat.draw(self.display_surface)
             
                 if self.combat.finished:
+                    result = self.combat.result
+                    
+                    self.combat.enemy.exit_combat(result)
+                    
                     self.game_state = "explore"
                     self.combat = None
                     pygame.mixer.music.load(menu_music)
                     pygame.mixer.music.play(-1)
+                    
+    def start_combat_music(self):
+        pygame.mixer.music.load(combat_music)
+        pygame.mixer.music.play(-1)
         
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self,):
@@ -218,4 +241,5 @@ class YSortCameraGroup(pygame.sprite.Group):
         for sprite in top:
             offset_pos = sprite.rect.topleft - self.offset
             if screen_rect.colliderect(pygame.Rect(offset_pos, sprite.image.get_size())):
-                self.display_surface.blit(sprite.image, offset_pos)     
+                self.display_surface.blit(sprite.image, offset_pos)
+                
