@@ -46,6 +46,8 @@ class CombatSystem:
         self.safe_zone = 0
         self.safe_width = 0.15
         
+        self.result = None
+        
     
     def player_heal(self):
         
@@ -63,6 +65,7 @@ class CombatSystem:
         
         
     def player_run(self):
+        self.result = "run"
         self.finished = True
          
     def update_bar(self):
@@ -70,7 +73,7 @@ class CombatSystem:
         
         if self.state == "ATTACK_MINIGAME":
             if self.bar_pos >= 1:
-                self_bar_pos = 1
+                self.bar_pos = 1
                 self.confirm_attack(missed=True)
         else:
             if self.bar_pos >=1 or self.bar_pos <= 0:
@@ -101,7 +104,7 @@ class CombatSystem:
             
             self.turn = "enemy"
             self.enemy_turn_start = pygame.time.get_ticks()
-            self.state = "WAITNG"
+            self.state = "WAITING"
             return
         
         
@@ -249,10 +252,12 @@ class CombatSystem:
                     
     def update(self):
         if self.enemy.health <= 0:
-             self.finished = True
-             return
+            self.result = "win"
+            self.finished = True
+            return
             
         if self.player.current_health <= 0:
+            self.result = "lose"
             self.finished = True
             return
         

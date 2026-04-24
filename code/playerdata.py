@@ -11,7 +11,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(player_img, (64, 64))
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.inflate(0, -24)
-        self.radius = 30
+        self.spawn_pos = pos
         self.y_sort = True
         
         ## movement ##
