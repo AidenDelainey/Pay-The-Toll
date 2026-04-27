@@ -10,6 +10,7 @@ import pygame, sys
 from settings import *
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 from level import Level
+import math
 
 class Game:
     def __init__(self):
