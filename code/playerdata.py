@@ -25,7 +25,7 @@ class Player(pygame.sprite.Sprite):
         self.accessories = [None, None, None]
         ## Stats ##
         self.base_stats = {
-            "attack": 3,
+            "attack": 20,
             "defence": 0,
             "spell" : 0,
             "healing": 2,
