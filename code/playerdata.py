@@ -29,7 +29,7 @@ class Player(pygame.sprite.Sprite):
             "defence": 0,
             "spell" : 0,
             "healing": 2,
-            "health": 20
+            "health": 3
             }
         
         self.current_health = 20
