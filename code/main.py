@@ -20,7 +20,7 @@ class Game:
         self.font = pygame.font.Font(font_path, 20)
         
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
-        pygame.display.set_caption('Game')
+        pygame.display.set_caption('Pay The Toll')
         
         self.clock = pygame.time.Clock()
         self.level = Level()

@@ -185,7 +185,8 @@ class Level:
                 if self.combat.finished:
                     result = self.combat.result
                     
-                    self.combat.enemy.exit_combat(result)
+                    for enemy in self.combat.all_enemies:
+                        enemy.exit_combat(result)
                     
                     self.game_state = "explore"
                     self.combat = None

@@ -48,14 +48,52 @@ class WorldEnemy(pygame.sprite.Sprite):
         self.immunity_time = 0
         self.immunity_duration = 60
         
+        self.last_pos = pygame.math.Vector2(self.rect.center)
+        self.stuck_timer = 0
+        
 
     def get_new_target(self):
-        angle = random.uniform(0, 2 * math.pi)
-        distance = random.uniform(0, self.roam_radius)
+        for _ in range(10):
+            angle = random.uniform(0, 2 * math.pi)
+            distance = random.uniform(0, self.roam_radius)
+            
+            offset = pygame.math.Vector2(
+                math.cos(angle) * distance,
+                math.sin(angle) * distance
+            )
+            
+            target = self.spawn_pos + offset
+            test_rect = self.rect.copy()
+            test_rect.center = target
+            
+            blocked = False
+            for sprite in self.obstacle_sprites:
+                if sprite.rect.colliderect(test_rect):
+                    blocked = True
+                    break
+            if not blocked:
+                return target
+            
+        return self.spawn_pos
         
-        offset_x = math.cos(angle) * distance
-        offset_y = math.sin(angle) * distance
-        return self.spawn_pos + pygame.math.Vector2(offset_x, offset_y)
+    def get_nearby_enemies(self, radius=300, max_enemies=3):
+        nearby = [self]
+
+        for enemy in self.level.enemy_sprites:
+            if enemy is self:
+                continue
+            if not enemy.alive or enemy.in_combat:
+                continue
+
+            dist = pygame.math.Vector2(enemy.rect.center).distance_to(self.rect.center)
+
+            if dist <= radius:
+                nearby.append(enemy)
+
+            if len(nearby) >= max_enemies:
+                break
+
+        return nearby
 
     def check_player_distance(self):
         enemy_pos = pygame.math.Vector2(self.rect.center)
@@ -97,7 +135,29 @@ class WorldEnemy(pygame.sprite.Sprite):
 
     def move(self):
         self.rect.x += self.direction.x * self.speed
+        self.collision("horizontal")
         self.rect.y += self.direction.y * self.speed
+        self.collision("vertical")
+        
+    def collision(self, direction):
+        for sprite in self.obstacle_sprites:
+            if sprite.rect.colliderect(self.rect):
+                
+                if direction == "horizontal":
+                    if self.direction.x > 0:  # moving right
+                        self.rect.right = sprite.rect.left
+                    if self.direction.x < 0:  # moving left
+                        self.rect.left = sprite.rect.right
+
+                    self.velocity.x = 0  # stop sliding into wall
+
+                if direction == "vertical":
+                    if self.direction.y > 0:  # moving down
+                        self.rect.bottom = sprite.rect.top
+                    if self.direction.y < 0:  # moving up
+                        self.rect.top = sprite.rect.bottom
+
+                    self.velocity.y = 0
 
     def check_collision(self):
         if self.in_combat:
@@ -117,7 +177,13 @@ class WorldEnemy(pygame.sprite.Sprite):
         
         self.combat_cooldown = 60
 
-        self.level.combat = CombatSystem(self.player, self)
+        enemies = self.get_nearby_enemies()
+        for enemy in enemies:
+            enemy.in_combat = True
+            enemy.state = "IN_COMBAT"
+            
+        self.level.combat = CombatSystem(self.player, enemies)
+        
         self.level.game_state = "combat"
         
         self.level.start_combat_music()
@@ -177,6 +243,20 @@ class WorldEnemy(pygame.sprite.Sprite):
         if self.immunity_time > 0:
             self.immunity_time -= 1
             self.direction = pygame.math.Vector2()
+            
+        current_pos = pygame.math.Vector2(self.rect.center)
+        
+        if current_pos.distance_to(self.last_pos) < 1:
+            self.stuck_timer += 1
+        else:
+            self.stuck_timer = 0
+            
+        self.last_pos = current_pos
+        
+        if self.stuck_timer > 30:
+            self.roam_target = self.get_new_target()
+            self.stuck_timer = 0
+        
         
         self.check_player_distance()
         if self.state == "ROAMING":
