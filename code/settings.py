@@ -10,7 +10,7 @@ TILESIZE = 64
 def roll_dice(sides):
     return random.randint(1, sides)
 
-font_path = os.path.join("..", "font", "pixel font.ttf")
+font_path = os.path.join("..", "font", "Pixel.otf")
 sound_path = os.path.join("..","sound")
 combat_path = os.path.join("..","sound","combat")
 image_path = os.path.join("..","image")

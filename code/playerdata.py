@@ -8,7 +8,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, obstacle_sprites):
         super().__init__(groups)
         ## player sprite ##
-        self.image = pygame.transform.scale(player_img, (64, 64))
+        self.base_image = pygame.transform.scale(player_img, (64, 64))
+        self.image = self.base_image
         self.rect = self.image.get_rect(topleft = pos)
         self.hitbox = self.rect.inflate(0, -24)
         self.spawn_pos = pos
@@ -106,6 +107,11 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.inputs()
         self.move()
+        
+        if self.direction.x < 0:
+            self.image = pygame.transform.flip(self.base_image, True, False)
+        elif self.direction.x > 0:
+            self.image = self.base_image
       
         self.current_health = min(self.current_health, self.max_hp)
           
