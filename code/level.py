@@ -3,13 +3,12 @@ import pygame
 from settings import *
 from tile import Tile, AnimatedTile
 from itemdata import WorldItem, Item, ITEM_DATABASE
-from combat import CombatSystem
 from playerdata import Player
 from enemy import WorldEnemy
 from inventory import Inventory
 from pytmx.util_pygame import load_pygame
 
-tmx_data = load_pygame('../map/test2.tmx')
+tmx_data = load_pygame('../map/forest map.tmx')
 menu_music = (os.path.join(sound_path, "menu music.mp3"))
 combat_music = (os.path.join(sound_path, "combat music.mp3"))
 
@@ -185,7 +184,8 @@ class Level:
                 if self.combat.finished:
                     result = self.combat.result
                     
-                    self.combat.enemy.exit_combat(result)
+                    for enemy in self.combat.all_enemies:
+                        enemy.exit_combat(result)
                     
                     self.game_state = "explore"
                     self.combat = None
