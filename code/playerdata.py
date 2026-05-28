@@ -11,9 +11,10 @@ class Player(pygame.sprite.Sprite):
         self.base_image = pygame.transform.scale(player_img, (64, 64))
         self.image = self.base_image
         self.rect = self.image.get_rect(topleft = pos)
-        self.hitbox = self.rect.inflate(0, -24)
+        self.hitbox = self.rect.inflate(-15, -32)
         self.spawn_pos = pos
         self.y_sort = True
+        self.facing_right = True
         
         ## movement ##
         self.direction = pygame.math.Vector2()
@@ -37,7 +38,35 @@ class Player(pygame.sprite.Sprite):
         
         self.walkspeed = 5
         self.sprintspeed = 10
+        self.frames = self.load_frames(player_img, 16,16)
+        self.frame_index = 0
+        self.animation_speed = 0.20
         
+        self.image = self.frames[self.frame_index]
+        self.base_image = self.image
+        
+        
+    def load_frames(self, sheet, frame_width, frame_height):
+        frames = []
+        sheet_width = sheet.get_width()
+        
+        for x in range(0, sheet_width, frame_width):
+            frame = sheet.subsurface((x, 0, frame_width, frame_height))
+            frame = pygame.transform.scale(frame, (64,64))
+            frames.append(frame)
+        return frames
+    
+    def animate(self):
+        if self.direction.length_squared() > 0:
+            self.frame_index += self.animation_speed
+            
+            if self.frame_index >= len(self.frames):
+                self.frame_index = 0
+            self.base_image = self.frames[int(self.frame_index)]
+        else:
+            self.frame_index = 0
+            self.base_image = self.frames[0]
+    
     def inputs(self):
         keys = pygame.key.get_pressed()
         
@@ -107,13 +136,19 @@ class Player(pygame.sprite.Sprite):
     def update(self):
         self.inputs()
         self.move()
+        self.animate()
         
         if self.direction.x < 0:
-            self.image = pygame.transform.flip(self.base_image, True, False)
+            self.facing_right = False
         elif self.direction.x > 0:
+            self.facing_right = True
+
+        if self.facing_right:
             self.image = self.base_image
-      
-        self.current_health = min(self.current_health, self.max_hp)
+        else:
+            self.image = pygame.transform.flip(self.base_image, True, False)
+          
+            self.current_health = min(self.current_health, self.max_hp)
           
     def rescale_health(self, old_max_hp):
         if old_max_hp > 0:

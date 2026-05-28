@@ -12,7 +12,7 @@ class Tile(pygame.sprite.Sprite):
             self.image.fill((0,0,255))
         
         self.rect = self.image.get_rect(topleft = pos)
-        self.hitbox = self.rect.inflate(0,-15)
+        self.hitbox = self.rect.inflate(0,15) #15
         self.y_sort = False
         self.always_on_top = False
         
