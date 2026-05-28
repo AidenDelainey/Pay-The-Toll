@@ -3,7 +3,6 @@ import pygame
 from settings import *
 from tile import Tile, AnimatedTile
 from itemdata import WorldItem, Item, ITEM_DATABASE
-from combat import CombatSystem
 from playerdata import Player
 from enemy import WorldEnemy
 from inventory import Inventory

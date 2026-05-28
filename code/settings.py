@@ -2,8 +2,8 @@
 import os
 import random
 
-WIDTH = 1000
-HEIGHT = 700
+WIDTH = 1024
+HEIGHT = 640
 FPS = 60
 TILESIZE = 64
 
@@ -14,3 +14,4 @@ font_path = os.path.join("..", "font", "Pixel.otf")
 sound_path = os.path.join("..","sound")
 combat_path = os.path.join("..","sound","combat")
 image_path = os.path.join("..","image")
+inventory_path = os.path.join("..", "image", "inventory_img")
