@@ -8,8 +8,10 @@
 ################ imports ###############
 import pygame, sys
 from settings import *
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_mode((WIDTH, HEIGHT)) # <-- don't remove or move
 from level import Level
+
+icon_img = pygame.image.load(os.path.join(enemies_path, "gnome", "idle.png" )).convert_alpha()
 
 class Game:
     def __init__(self):
@@ -20,6 +22,7 @@ class Game:
         
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption('Pay The Toll')
+        pygame.display.set_icon(icon_img)
         
         self.clock = pygame.time.Clock()
         self.level = Level()

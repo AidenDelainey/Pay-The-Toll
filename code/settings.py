@@ -12,6 +12,8 @@ def roll_dice(sides):
 
 font_path = os.path.join("..", "font", "Pixel.otf")
 sound_path = os.path.join("..","sound")
-combat_path = os.path.join("..","sound","combat")
 image_path = os.path.join("..","image")
-inventory_path = os.path.join("..", "image", "inventory_img")
+combat_path = os.path.join(sound_path,"combat")
+inventory_path = os.path.join(image_path, "inventory_img")
+enemies_path = os.path.join(image_path, "enemies")
+combat_img_path = os.path.join(image_path, "combat_img")

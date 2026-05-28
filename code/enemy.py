@@ -53,7 +53,7 @@ class WorldEnemy(pygame.sprite.Sprite):
         self.stuck_timer = 0
         
     def load_sprites(self):
-        enemy_path = os.path.join(image_path, "enemies", self.enemy_id)
+        enemy_path = os.path.join(enemies_path, self.enemy_id)
         
         self.sprites = {
             "idle": pygame.image.load(os.path.join(enemy_path, "idle.png")).convert_alpha(),
