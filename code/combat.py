@@ -5,6 +5,7 @@ import random
 
 pygame.init()
 
+# sounds #
 select_snd = pygame.mixer.Sound(os.path.join(sound_path, "item hover.mp3"))
 weapon_swing_snd = pygame.mixer.Sound(os.path.join(combat_path, "weapon swing.mp3"))
 immune_hit_snd = pygame.mixer.Sound(os.path.join(combat_path, "immune hit.mp3"))
@@ -14,6 +15,10 @@ normal_hit_snd = pygame.mixer.Sound(os.path.join(combat_path, "normal hit.mp3"))
 spell_cast_snd = pygame.mixer.Sound(os.path.join(combat_path, "spell cast.mp3"))
 heal_spell_snd = pygame.mixer.Sound(os.path.join(combat_path, "heal spell.mp3"))
 marker_hit_snd = pygame.mixer.Sound(os.path.join(combat_path, "marker hit.mp3"))
+
+# images #
+
+
 
 class CombatSystem:
     def __init__(self, player, enemies):
