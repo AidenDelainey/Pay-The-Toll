@@ -49,7 +49,7 @@ class CombatSystem:
 
         self.spell_power = 1
         self.spell_hits = 0
-        self.max_spell_hits = 5
+        self.max_spell_hits = 3
 
         self.bar_pos = 0
         self.bar_speed = 0
@@ -111,7 +111,7 @@ class CombatSystem:
         if not enemy:
             return
 
-        if missed or accuracy <= 0:
+        if missed:
             weapon_swing_snd.play()
             self.start_enemy_turn()
             return

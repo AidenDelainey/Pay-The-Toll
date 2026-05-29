@@ -300,7 +300,7 @@ ENEMY_DATABASE = {
         "defence": 3,
         "resistance": {
             "physical": 0.1,
-            "spell": 0.1
+            "spell": 0.3
         },
         "speed": 3,
         "detection": 250,
