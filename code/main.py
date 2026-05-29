@@ -37,7 +37,7 @@ class Game:
         
                 self.level.handle_input(event)
                 
-            self.screen.fill('black')
+            #self.screen.fill('black')
             self.level.run()
             
             fps = self.clock.get_fps()
