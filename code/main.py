@@ -52,4 +52,4 @@ if __name__ == '__main__':
     game.run()
 
 ############ licences #############
-# Copyright 2021 The Pixelify Sans Project Authors (https://github.com/eifetx/Pixelify-Sans)
+# Copyright 2021 The Pixelify Sans Project Authors (https://github.com/eifetx/Pixelify-Sans)a
