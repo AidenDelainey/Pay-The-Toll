@@ -315,7 +315,7 @@ ENEMY_DATABASE = {
         "defence": 0,
         "resistance": {
             "physical": 0.0,
-            "spell": 0.5
+            "spell": 0.0
         },
         "speed": 5,
         "detection": 200,
@@ -330,7 +330,7 @@ ENEMY_DATABASE = {
         "defence": 2,
         "resistance": {
             "physical": -0.4,
-            "spell": 0.7
+            "spell": 0.4
         },
         "speed": 2,
         "detection": 200,
@@ -355,11 +355,11 @@ ENEMY_DATABASE = {
     ,
     "gnome": {
         "name": "GNOME",
-        "health": 200,
+        "health": 150,
         "attack": 8,
         "defence": 4,
         "resistance": {
-            "physical": 0.8,
+            "physical": 0.5,
             "spell": -0.2
         },
         "speed": 0,

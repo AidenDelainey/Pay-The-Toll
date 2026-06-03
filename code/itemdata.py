@@ -41,9 +41,10 @@ ITEM_DATABASE = {
     ,
     "sword": {
         "name": "Iron Sword",
-        "description": "A standerd issue sword for soilders +4 ATK",
+        "description": "A standerd issue sword for soilders +4 ATK +1 DEF",
         "type": "weapon",
-        "stats": {"attack": 4},
+        "stats": {"attack": 4,
+                  "defence": 1},
         "stackable": False,
         }
     ,
