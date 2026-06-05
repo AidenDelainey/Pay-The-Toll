@@ -36,7 +36,7 @@ class Player(pygame.sprite.Sprite):
         
         self.current_health = 20
         
-        self.walkspeed = 5
+        self.walkspeed = 20
         self.sprintspeed = 10
         self.frames = self.load_frames(player_img, 16,16)
         self.frame_index = 0

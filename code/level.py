@@ -8,7 +8,7 @@ from enemy import WorldEnemy
 from inventory import Inventory
 from pytmx.util_pygame import load_pygame
 
-tmx_data = load_pygame('../map/forest map 2.tmx')
+tmx_data = load_pygame('../map/forest map 2.tmx') # maps (forest map 1, forest map 2, castle map 1)
 menu_music = (os.path.join(sound_path, "menu music.mp3"))
 combat_music = (os.path.join(sound_path, "combat music.mp3"))
 

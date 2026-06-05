@@ -342,10 +342,10 @@ ENEMY_DATABASE = {
         "name": "Royal Soilder",
         "health": 50,
         "attack": 10,
-        "defence": 6,
+        "defence": 4,
         "resistance": {
-            "physical": 0.5,
-            "spell": 0.7
+            "physical": 0.2,
+            "spell": 0.4
         },
         "speed": 4,
         "detection": 300,
