@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" infinite="0" nextlayerid="16" nextobjectid="1">
+<map version="1.10" tiledversion="1.12.0" orientation="orthogonal" renderorder="right-down" width="50" height="50" tilewidth="32" tileheight="32" infinite="0" nextlayerid="17" nextobjectid="3">
  <tileset firstgid="1" source="tileset.tsx"/>
  <tileset firstgid="361" source="walls.tsx"/>
  <tileset firstgid="505" source="roofs.tsx"/>
@@ -229,6 +229,9 @@
   </layer>
  </group>
  <group id="7" name="Mechanic layers">
+  <objectgroup id="16" name="level_exit" opacity="0">
+   <object id="2" x="1440" y="864.667" width="27.3333" height="64"/>
+  </objectgroup>
   <layer id="8" name="collisoins" width="50" height="50" visible="0">
    <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
