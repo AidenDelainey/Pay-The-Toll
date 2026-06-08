@@ -93,14 +93,11 @@ class CombatSystem:
     def start_attack_minigame(self):
         self.state = "ATTACK_MINIGAME"
         self.bar_pos = 0
-        self.bar_speed = random.choice([0.012, 0.015, 0.02])
+        self.bar_speed = random.choice([0.014, 0.018, 0.022])
         self.target_pos = random.uniform(0.15, 0.85)
         self.target_width = 0.12
 
     def confirm_attack(self, missed=False):
-        if missed:
-            self.resolve_attack(0, True)
-            return
 
         distance = abs(self.bar_pos - self.target_pos)
         accuracy = max(0, 1 - (distance / self.target_width))
@@ -109,11 +106,6 @@ class CombatSystem:
     def resolve_attack(self, accuracy, missed):
         enemy = self.get_target()
         if not enemy:
-            return
-
-        if missed:
-            weapon_swing_snd.play()
-            self.start_enemy_turn()
             return
 
         base_attack = self.player.get_stat("attack")
@@ -340,13 +332,8 @@ class CombatSystem:
     def update_bar(self):
         self.bar_pos += self.bar_speed
 
-        if self.state == "ATTACK_MINIGAME":
-            if self.bar_pos >= 1:
-                self.bar_pos = 1
-                self.confirm_attack(missed=True)
-        else:
-            if self.bar_pos >= 1 or self.bar_pos <= 0:
-                self.bar_speed *= -1
+        if self.bar_pos >= 1 or self.bar_pos <= 0:
+            self.bar_speed *= -1
 
     # -------------------------
     # DRAW (MULTI ENEMY)
