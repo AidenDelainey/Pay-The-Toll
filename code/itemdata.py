@@ -67,10 +67,10 @@ ITEM_DATABASE = {
     ,
     "excaliber": {
         "name": "Excaliber",
-        "description": "How was this made from a stick +10 ATK +3 DEF +10 HP",
+        "description": "How was this made from a stick +8 ATK +2 DEF +10 HP",
         "type": "weapon",
-        "stats": {"attack": 10,
-                  "defence": 3,
+        "stats": {"attack": 8,
+                  "defence": 2,
                   "health": 10},
         "stackable": False,
         }
@@ -141,20 +141,19 @@ ITEM_DATABASE = {
     ,
     "arm_bracer": {
         "name": "Arm Bracers ",
-        "description": "A pair of bracers that allow more precise slashing +8 ATK +3 DEF",
+        "description": "A pair of bracers that allow more precise slashing +8 ATK +1 DEF",
         "type": "accessory",
         "stats": {"attack": 8,
-                  "defence": 3},
+                  "defence": 1},
         "stackable": False,
         }
     ,
     "warriors_medalion": {
         "name": "Warriors Medalion",
-        "description": "A small coin that somehow makes you stonger +10 ATK +10 HP +5 DEF",
+        "description": "A small coin that somehow makes you stonger +8 ATK +10 HP",
         "type": "accessory",
-        "stats": {"attack": 10,
-                  "health": 10,
-                  "defence": 5},
+        "stats": {"attack": 8,
+                  "health": 10},
         "stackable": False,
         }
     ,
@@ -243,10 +242,10 @@ ITEM_DATABASE = {
         }
     ,
     "sheild": {
-        "name": "Sheid",
-        "description": "Not sure how you can use this with two handed weapons +5 DEF +10 HP",
+        "name": "Sheild",
+        "description": "Not sure how you can use this with two handed weapons +2 DEF +10 HP",
         "type": "accessory",
-        "stats": {"defence": 5,
+        "stats": {"defence": 2,
                   "health": 10},
         "stackable": False,
         }
