@@ -66,6 +66,11 @@ class Level:
         if self.inventory_open:
             self.inventory.handle_input(event)
             
+    def respawn_player(self):
+        self.player.rect.topleft = self.player_spawn
+        self.player.hitbox.topleft = self.player_spawn
+        self.player.current_health = 10
+            
     def create_map(self):
         tile_width = TILESIZE
         tile_height = TILESIZE
@@ -106,7 +111,19 @@ class Level:
             if layer.name == 'player':
                 for x, y, surf in layer.tiles():
                     pos = (x * tile_width, y * tile_height)
-                    self.player = Player(pos, [self.visable_sprites], self.obstacle_sprites)
+                    
+                    self.player_spawn = pos
+                    
+                    if hasattr(self, "player"):
+                        self.player.rect.topleft = pos
+                        self.player.hitbox.topleft = pos
+                        self.visable_sprites.add(self.player)
+                    else:
+                        self.player = Player(
+                            pos,
+                            [self.visable_sprites],
+                            self.obstacle_sprites
+                        )
             
         #---ENEMIES ---
         for layer in self.tmx_data.layers:
@@ -200,6 +217,9 @@ class Level:
                     self.combat = None
                     pygame.mixer.music.load(menu_music)
                     pygame.mixer.music.play(-1)
+                    
+        if self.player.current_health <= 0:
+            self.respawn_player()
         
         if self.exit_rect:
             if self.exit_rect.colliderect(self.player.hitbox):

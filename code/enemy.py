@@ -232,7 +232,7 @@ class WorldEnemy(pygame.sprite.Sprite):
         
         elif result == "lose":
             self.player.rect.topleft = self.player.spawn_pos
-            self.player.current_health = 10
+            #self.player.current_health = 10
             
             self.state = "ROAMING"
     
@@ -296,7 +296,7 @@ ENEMY_DATABASE = {
     "soilder": {
         "name": "Soilder",
         "health": 40,
-        "attack": 4,
+        "attack": 5,
         "defence": 3,
         "resistance": {
             "physical": 0.1,
@@ -355,8 +355,8 @@ ENEMY_DATABASE = {
     ,
     "gnome": {
         "name": "GNOME",
-        "health": 150,
-        "attack": 8,
+        "health": 250,
+        "attack": 12,
         "defence": 4,
         "resistance": {
             "physical": 0.5,
