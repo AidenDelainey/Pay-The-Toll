@@ -34,7 +34,7 @@ class CombatSystem:
 
         self.font = pygame.font.Font(font_path, 24)
 
-        self.options = ["Attack", "Spell", "Heal", "Run"]
+        self.options = ["Attack", "Spell", "Heal"]
         self.selected_option = 0
 
         self.enemy_turn_delay = 800
@@ -289,8 +289,8 @@ class CombatSystem:
                 elif self.selected_option == 2:
                     self.player_heal()
 
-                elif self.selected_option == 3:
-                    self.player_run()
+                #elif self.selected_option == 3:
+                    #self.player_run()
 
         elif self.state == "ATTACK_MINIGAME":
             if event.key == pygame.K_SPACE:

@@ -212,23 +212,6 @@ class WorldEnemy(pygame.sprite.Sprite):
             self.become_corpse()
             self.direction = pygame.math.Vector2()
             return
-
-        if result == "run":
-            direction = pygame.math.Vector2(self.rect.center) - pygame.math.Vector2(self.player.rect.center)
-            
-            if direction.length() == 0:
-                direction = pygame.math.Vector2(random.uniform(-1,1), random.uniform(-1,1))
-                
-            direction = direction.normalize()
-            
-            if self.speed > 0:
-                knockback_distance = TILESIZE * 2.5
-                self.rect.center += direction * knockback_distance
-            
-            self.state = "ROAMING"
-            self.roam_target = self.get_new_target()
-            self.direction = pygame.math.Vector2()
-            return
         
         elif result == "lose":
             self.player.rect.topleft = self.player.spawn_pos
@@ -305,7 +288,6 @@ ENEMY_DATABASE = {
         "speed": 3,
         "detection": 250,
         "roam": 3,
-        "sprite": "not implemented"
     }
     ,
     "skeleton": {
@@ -320,7 +302,6 @@ ENEMY_DATABASE = {
         "speed": 5,
         "detection": 200,
         "roam": 5,
-        "sprite": "not implemented"
     }
     ,
     "zombie": {
@@ -335,7 +316,6 @@ ENEMY_DATABASE = {
         "speed": 2,
         "detection": 200,
         "roam": 5,
-        "sprite": "not implemented"
     }
     ,
     "royal_soilder": {
@@ -350,7 +330,6 @@ ENEMY_DATABASE = {
         "speed": 4,
         "detection": 300,
         "roam": 2,
-        "sprite": "not implemented"
     }
     ,
     "gnome": {
@@ -365,7 +344,34 @@ ENEMY_DATABASE = {
         "speed": 0,
         "detection": 0,
         "roam": 0,
-        "sprite": "not implemented"
+    }
+    ,
+    "king": {
+        "name": "King",
+        "health": 200,
+        "attack": 6,
+        "defence": 2,
+        "resistance": {
+            "physical": 0.2,
+            "spell": -0.3
+        },
+        "speed": 0,
+        "detection": 0,
+        "roam": 0,
+    }
+    ,
+    "queen": {
+        "name": "Queen",
+        "health": 200,
+        "attack": 6,
+        "defence": 2,
+        "resistance": {
+            "physical": -0.3,
+            "spell": 0.2
+        },
+        "speed": 0,
+        "detection": 0,
+        "roam": 0,
     }
     ,
 }

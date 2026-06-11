@@ -15,7 +15,8 @@ icon_img = pygame.image.load(os.path.join(enemies_path, "gnome", "idle.png" )).c
 LEVELS = ["../map/forest map 1.tmx",
           "../map/forest map 2.tmx",
           "../map/castle map 1.tmx",
-          "../map/castle map 2.tmx"
+          "../map/castle map 2.tmx",
+          "../map/end.tmx"
           ]
 
 
