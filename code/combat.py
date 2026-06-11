@@ -5,6 +5,7 @@ import random
 
 pygame.init()
 
+# sounds #
 select_snd = pygame.mixer.Sound(os.path.join(sound_path, "item hover.mp3"))
 weapon_swing_snd = pygame.mixer.Sound(os.path.join(combat_path, "weapon swing.mp3"))
 immune_hit_snd = pygame.mixer.Sound(os.path.join(combat_path, "immune hit.mp3"))
@@ -14,6 +15,10 @@ normal_hit_snd = pygame.mixer.Sound(os.path.join(combat_path, "normal hit.mp3"))
 spell_cast_snd = pygame.mixer.Sound(os.path.join(combat_path, "spell cast.mp3"))
 heal_spell_snd = pygame.mixer.Sound(os.path.join(combat_path, "heal spell.mp3"))
 marker_hit_snd = pygame.mixer.Sound(os.path.join(combat_path, "marker hit.mp3"))
+
+# images #
+
+
 
 class CombatSystem:
     def __init__(self, player, enemies):
@@ -29,7 +34,7 @@ class CombatSystem:
 
         self.font = pygame.font.Font(font_path, 24)
 
-        self.options = ["Attack", "Spell", "Heal", "Run"]
+        self.options = ["Attack", "Spell", "Heal"]
         self.selected_option = 0
 
         self.enemy_turn_delay = 800
@@ -44,7 +49,7 @@ class CombatSystem:
 
         self.spell_power = 1
         self.spell_hits = 0
-        self.max_spell_hits = 5
+        self.max_spell_hits = 3
 
         self.bar_pos = 0
         self.bar_speed = 0
@@ -88,14 +93,11 @@ class CombatSystem:
     def start_attack_minigame(self):
         self.state = "ATTACK_MINIGAME"
         self.bar_pos = 0
-        self.bar_speed = random.choice([0.012, 0.015, 0.02])
+        self.bar_speed = random.choice([0.014, 0.018, 0.022])
         self.target_pos = random.uniform(0.15, 0.85)
         self.target_width = 0.12
 
     def confirm_attack(self, missed=False):
-        if missed:
-            self.resolve_attack(0, True)
-            return
 
         distance = abs(self.bar_pos - self.target_pos)
         accuracy = max(0, 1 - (distance / self.target_width))
@@ -104,11 +106,6 @@ class CombatSystem:
     def resolve_attack(self, accuracy, missed):
         enemy = self.get_target()
         if not enemy:
-            return
-
-        if missed or accuracy <= 0:
-            weapon_swing_snd.play()
-            self.start_enemy_turn()
             return
 
         base_attack = self.player.get_stat("attack")
@@ -292,8 +289,8 @@ class CombatSystem:
                 elif self.selected_option == 2:
                     self.player_heal()
 
-                elif self.selected_option == 3:
-                    self.player_run()
+                #elif self.selected_option == 3:
+                    #self.player_run()
 
         elif self.state == "ATTACK_MINIGAME":
             if event.key == pygame.K_SPACE:
@@ -335,13 +332,8 @@ class CombatSystem:
     def update_bar(self):
         self.bar_pos += self.bar_speed
 
-        if self.state == "ATTACK_MINIGAME":
-            if self.bar_pos >= 1:
-                self.bar_pos = 1
-                self.confirm_attack(missed=True)
-        else:
-            if self.bar_pos >= 1 or self.bar_pos <= 0:
-                self.bar_speed *= -1
+        if self.bar_pos >= 1 or self.bar_pos <= 0:
+            self.bar_speed *= -1
 
     # -------------------------
     # DRAW (MULTI ENEMY)

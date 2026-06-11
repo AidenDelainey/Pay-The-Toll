@@ -30,81 +30,134 @@ class WorldItem(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
         
 ITEM_DATABASE = {
-    "template": {
-        "name": " ",
-        "description": " ",
-        "type": " ",
-        "stats": {},
-        "stackable": False,
-        }
-    ,
-    "test_weapon": {
-        "name": "TESTW",
-        "description": "TEST ALMIGHTY WEAPON",
+    # Melee Items #
+    "dagger": {
+        "name": "Dagger",
+        "description": "Possible a murder weapon but its yours now +2 ATK",
         "type": "weapon",
-        "stats": {"attack": 999},
+        "stats": {"attack": 2},
         "stackable": False,
         }
     ,
-    "test_spell": {
-    "name": "TESTS",
-        "description": "TEST ALMIGHTY SPELL",
-        "type": "spell",
-        "stats": {"spell": 999},
-        "stackable": False,
-        }
-    ,
-    "test_acc_heal": {
-    "name": "TESTAH",
-        "description": "TEST ALMIGHTY HEAL",
-        "type": "accessory",
-        "stats": {"healing": 999,
-                  "spell": 999},
-        "stackable": False,
-        }
-    ,
-    "test_acc_def": {
-    "name": "TESTAD",
-        "description": "TEST ALMIGHTY DEFENCE",
-        "type": "accessory",
-        "stats": {"defence": 999},
-        "stackable": False,
-        }
-    ,
-    "test_acc_health": {
-    "name": "TESTAHP",
-        "description": "TEST ALMIGHTY HEALTH",
-        "type": "accessory",
-        "stats": {"health": 999},
-        "stackable": False,
-        }
-    ,
-    "flimsy_dagger": {
-        "name": "Flimsy Dagger",
-        "description": "A very basic dagger. +3 ATK",
+    "sword": {
+        "name": "Iron Sword",
+        "description": "A standerd issue sword for soilders +4 ATK +1 DEF",
         "type": "weapon",
-        "stats": {"attack": 3},
+        "stats": {"attack": 4,
+                  "defence": 1},
         "stackable": False,
         }
     ,
-    "wooden_wand": {
+    "metal_fisters": {
+        "name": " Metal Fisters",
+        "description": "'crack' 'crack' ITS FISTING TIME +6 ATK +2 DEF",
+        "type": "weapon",
+        "stats": {"attack": 6,
+                  "defence": 2},
+        "stackable": False,
+        }
+    ,
+    "stick": {
+        "name": "Stick",
+        "description": "Its just a stick, no magic +1 ATK",
+        "type": "weapon",
+        "stats": {"attack": 1},
+        "stackable": False,
+        }
+    ,
+    "excaliber": {
+        "name": "Excaliber",
+        "description": "How was this made from a stick +8 ATK +2 DEF +10 HP",
+        "type": "weapon",
+        "stats": {"attack": 8,
+                  "defence": 2,
+                  "health": 10},
+        "stackable": False,
+        }
+    ,
+    # Spell Items #
+    "wand": {
         "name": "Wooden Wand",
-        "description": "Its a stick, but magic + 2 SPL +1 HEL",
+        "description": "Its a stick, but magic + 2SPL +1 HEL",
         "type": "spell",
         "stats": {"spell": 2,
                   "healing": 1},
         "stackable": False,
         }
     ,
-    "simple_bracers": {
-        "name": "Simple Bracers ",
-        "description": "A simple pair of bracers +3 DEF +5 HP",
+    "staff": {
+        "name": "Staff",
+        "description": "A long stick with an orb made of something +4 SPL +2 HEL",
+        "type": "spell",
+        "stats": {"spell": 4,
+                  "healing": 2},
+        "stackable": False,
+        }
+    ,
+    "tome_of_fireball": {
+        "name": "Tome of Fireball",
+        "description": "FIREBALL, FIREBALL, FIREBALL +6 SPL +2 HEL",
+        "type": "spell",
+        "stats": {"spell": 6,
+                  "healing": 2},
+        "stackable": False,
+        }
+    ,
+    "tome_of_greater_spells": {
+        "name": "Tome of Greater Spells,(NOW WITH FIREBALL)",
+        "description": "It has more spells and is purple +7 SPL +2 HEL",
+        "type": "spell",
+        "stats": {"spell": 7,
+                  "healing": 2},
+        "stackable": False,
+        }
+    ,
+    "orb_of_chaos": {
+        "name": "Orb of Chaos",
+        "description": "Blue orb +10 SPL +4 HEL",
+        "type": "spell",
+        "stats": {"spell": 10,
+                  "healing": 4},
+        "stackable": False,
+        }
+    ,
+    # Melee Acc #
+    "sharpening_stone": {
+        "name": "Sharpening Stone",
+        "description": "A coarse rock that can sharpen your equipment +2 ATK",
         "type": "accessory",
-        "stats": {"defence": 3,
+        "stats": {"attack": 2},
+        "stackable": False,
+        }
+    ,
+    "rune_of_blood": {
+        "name": "Rune of Blood",
+        "description": "A stone with a bloody sigil cut into it +4 ATK +5 HP",
+        "type": "accessory",
+        "stats": {"attack": 4,
                   "health": 5},
         "stackable": False,
         }
     ,
+    "arm_bracer": {
+        "name": "Arm Bracers ",
+        "description": "A pair of bracers that allow more precise slashing +8 ATK +1 DEF",
+        "type": "accessory",
+        "stats": {"attack": 8,
+                  "defence": 1},
+        "stackable": False,
+        }
+    ,
+    "warriors_medalion": {
+        "name": "Warriors Medalion",
+        "description": "A small coin that somehow makes you stonger +8 ATK +10 HP",
+        "type": "accessory",
+        "stats": {"attack": 8,
+                  "health": 10},
+        "stackable": False,
+        }
+    ,
+    # Healing Acc #
     "silver_ring": {
         "name": "Silver Ring",
         "description": "A ring made of silver +3 HEL",
@@ -113,47 +166,89 @@ ITEM_DATABASE = {
         "stackable": False,
         }
     ,
-    "apprentice_cloak": {
-        "name": "Appretice's Cloak",
-        "description": "A cloak with basic magic imbude in its cloth +2 SPL",
+     "gold_ring": {
+        "name": "Gold Ring",
+        "description": "S	omehow more powerful then silver +5 HEL",
+        "type": "accessory",
+        "stats": {"healing": 5},
+        "stackable": False,
+        }
+    ,
+     "tome_of_healing": {
+        "name": "Tome of Healing",
+        "description": "Decpit what you think this is an accessory +6 HEL +5 HP",
+        "type": "accessory",
+        "stats": {"healing": 6,
+                  "health": 5},
+        "stackable": False,
+        }
+    ,
+     "clerics_cross": {
+        "name": "Cleric Cross",
+        "description": "The only time religion is useful +8 HEL",
+        "type": "accessory",
+        "stats": {"healing": 8},
+        "stackable": False,
+        }
+    ,
+    # Magic Acc #
+    "novice_cloak": {
+        "name": "Novice Cloak",
+        "description": "A cloak with basic magic in its cloth +2 SPL",
         "type": "accessory",
         "stats": {"spell": 2},
         "stackable": False,
         }
     ,
-    "metal_fisters": {
-        "name": " Metal Fisters",
-        "description": "'crack' 'crack' ITS FISTING TIME +5 ATK +2 DEF",
-        "type": "weapon",
-        "stats": {"attack": 5,
-                  "defence": 2},
-        "stackable": False,
-        }
-    ,
-    "enchanted_drums": {
-        "name": "Enchanted Drums",
-        "description": "The drums beats reasonate with magical power +3 SPL +2 HEL",
+    "apprentice_cloak": {
+        "name": "Appretice Cloak",
+        "description": "A cloak with more complex magic +4 SPL",
         "type": "accessory",
-        "stats": {"spell": 3,
-                  "healing": 2},
+        "stats": {"spell": 4},
         "stackable": False,
         }
     ,
-    "wooden_staff": {
-        "name": "Wooden Staff",
-        "description": "Its better then a stick +4 SPL +2 HEL",
-        "type": "spell",
-        "stats": {"spell": 4,
-                  "healing": 2},
+    "master_cloak": {
+        "name": "Masters Cloak",
+        "description": "A cloak with a decent amount of magic +6 SPL",
+        "type": "accessory",
+        "stats": {"spell": 6},
         "stackable": False,
         }
     ,
-    "wing_sword": {
-        "name": "Wing Sword",
-        "description": "A feather like sword that can launch enemies away +6 ATK",
-        "type": "weapon",
-        "stats": {"attack": 6},
+    "scroll_of_power": {
+        "name": "Scroll of Power",
+        "description": "A scroll that is more powerful then the cloak you might be wearing +8 SPL",
+        "type": "accessory",
+        "stats": {"spell": 8},
         "stackable": False,
         }
     ,
+    # Misc Acc #
+    "lesser_vitality": {
+        "name": "Vial of Lesser Vitality",
+        "description": "A small vial filled with a red liquid +10 HP",
+        "type": "accessory",
+        "stats": {"health": 10},
+        "stackable": False,
+        }
+    ,
+    "greater_vitality": {
+        "name": "Flask of greater Vitality",
+        "description": "Like the lesser vial but bigger +20 HP",
+        "type": "accessory",
+        "stats": {"health": 20},
+        "stackable": False,
+        }
+    ,
+    "sheild": {
+        "name": "Sheild",
+        "description": "Not sure how you can use this with two handed weapons +2 DEF +10 HP",
+        "type": "accessory",
+        "stats": {"defence": 2,
+                  "health": 10},
+        "stackable": False,
+        }
+    ,
+
     }

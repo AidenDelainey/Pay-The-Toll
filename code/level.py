@@ -3,13 +3,11 @@ import pygame
 from settings import *
 from tile import Tile, AnimatedTile
 from itemdata import WorldItem, Item, ITEM_DATABASE
-from combat import CombatSystem
 from playerdata import Player
 from enemy import WorldEnemy
 from inventory import Inventory
 from pytmx.util_pygame import load_pygame
 
-tmx_data = load_pygame('../map/test2.tmx')
 menu_music = (os.path.join(sound_path, "menu music.mp3"))
 combat_music = (os.path.join(sound_path, "combat music.mp3"))
 
@@ -17,8 +15,13 @@ ITEM_FONT = pygame.font.Font(font_path, 24)
 inv_open_snd = pygame.mixer.Sound(os.path.join(sound_path, "inventory open.mp3"))
 inv_close_snd = pygame.mixer.Sound(os.path.join(sound_path, "inventory close.mp3"))
 
+
 class Level:
-    def __init__(self):
+    def __init__(self, map_file):
+        self.tmx_data = load_pygame(map_file)
+        self.finished_level = False
+        self.exit_rect = None
+        
         self.display_surface = pygame.display.get_surface()
         self.visable_sprites = YSortCameraGroup()
         self.item_sprites = pygame.sprite.Group()
@@ -63,12 +66,17 @@ class Level:
         if self.inventory_open:
             self.inventory.handle_input(event)
             
+    def respawn_player(self):
+        self.player.rect.topleft = self.player_spawn
+        self.player.hitbox.topleft = self.player_spawn
+        self.player.current_health = 10
+            
     def create_map(self):
         tile_width = TILESIZE
         tile_height = TILESIZE
         
         # --- STATIC VISUAL LAYERS ---
-        for layer in tmx_data.visible_layers:
+        for layer in self.tmx_data.visible_layers:
             if hasattr(layer, 'data') and layer.name != 'animated':
                 for x, y, surf in layer.tiles():
                     pos = (x * tile_width, y * tile_height)
@@ -77,42 +85,54 @@ class Level:
                         tile.y_sort = True
 
         # --- COLLISIONS ---
-        for layer in tmx_data.layers:
+        for layer in self.tmx_data.layers:
             if layer.name == 'collisoins':
                 for x, y, surf in layer.tiles():
                     pos = (x * tile_width, y * tile_height)
                     Tile(pos, surf, self.obstacle_sprites)
 
         # --- ITEMS ---
-        for layer in tmx_data.layers:
+        for layer in self.tmx_data.layers:
             if layer.name == 'item':
                 for x, y, gid in layer:
                     if gid == 0:
                         continue
-                    tile_props = tmx_data.get_tile_properties_by_gid(gid)
+                    tile_props = self.tmx_data.get_tile_properties_by_gid(gid)
                     if tile_props and "item" in tile_props:
                         item_key = tile_props["item"]
                         if item_key in ITEM_DATABASE:
                             pos = (x * tile_width, y * tile_height)
-                            image = tmx_data.get_tile_image_by_gid(gid)
+                            image = self.tmx_data.get_tile_image_by_gid(gid)
                             item = Item(item_key, ITEM_DATABASE[item_key], image)
                             WorldItem(pos, item, [self.visable_sprites, self.item_sprites], image)
 
         # --- PLAYER SPAWN ---
-        for layer in tmx_data.layers:
+        for layer in self.tmx_data.layers:
             if layer.name == 'player':
                 for x, y, surf in layer.tiles():
                     pos = (x * tile_width, y * tile_height)
-                    self.player = Player(pos, [self.visable_sprites], self.obstacle_sprites)
+                    
+                    self.player_spawn = pos
+                    
+                    if hasattr(self, "player"):
+                        self.player.rect.topleft = pos
+                        self.player.hitbox.topleft = pos
+                        self.visable_sprites.add(self.player)
+                    else:
+                        self.player = Player(
+                            pos,
+                            [self.visable_sprites],
+                            self.obstacle_sprites
+                        )
             
         #---ENEMIES ---
-        for layer in tmx_data.layers:
+        for layer in self.tmx_data.layers:
             if hasattr(layer, "data") and layer.name == "enemies":
                 for x, y, gid in layer:
                     if gid == 0:
                         continue
 
-                    tile_props = tmx_data.get_tile_properties_by_gid(gid)
+                    tile_props = self.tmx_data.get_tile_properties_by_gid(gid)
 
                     if tile_props and "enemy" in tile_props:
                         pos = (x * TILESIZE, y * TILESIZE)
@@ -125,7 +145,7 @@ class Level:
                             self)
 
         # --- OBJECTS THAT RENDER ON TOP ---
-        for layer in tmx_data.layers:
+        for layer in self.tmx_data.layers:
             if layer.name == 'Objects':
                 for x, y, surf in layer.tiles():
                     pos = (x * tile_width, y * tile_height)
@@ -133,22 +153,27 @@ class Level:
                     tile.always_on_top = True
 
         # --- ANIMATED TILES ---
-        for layer_index, layer in enumerate(tmx_data.layers):
+        for layer_index, layer in enumerate(self.tmx_data.layers):
             if layer.name == 'animated':
                 for x, y, gid in layer:
                     if gid == 0:
                         continue
 
-                    real_gid = tmx_data.get_tile_gid(x, y, layer_index)
-                    tile_props = tmx_data.get_tile_properties_by_gid(real_gid)
+                    real_gid = self.tmx_data.get_tile_gid(x, y, layer_index)
+                    tile_props = self.tmx_data.get_tile_properties_by_gid(real_gid)
                     pos = (x * tile_width, y * tile_height)
 
                     if tile_props and "frames" in tile_props:
                         frames = tile_props["frames"]
-                        AnimatedTile(pos, frames, tmx_data, self.visable_sprites)
+                        AnimatedTile(pos, frames, self.tmx_data, self.visable_sprites)
                     else:
-                        image = tmx_data.get_tile_image_by_gid(real_gid)
+                        image = self.tmx_data.get_tile_image_by_gid(real_gid)
                         Tile(pos, image, self.visable_sprites)
+        
+        for layer in self.tmx_data.layers:
+            if layer.name == "level_exit":
+                for obj in layer:
+                    self.exit_rect = pygame.Rect(obj.x*2, obj.y*2, obj.width*2, obj.height*2)
                 
     def run(self):
         if self.game_state == "explore":
@@ -193,9 +218,29 @@ class Level:
                     pygame.mixer.music.load(menu_music)
                     pygame.mixer.music.play(-1)
                     
+        if self.player.current_health <= 0:
+            self.respawn_player()
+        
+        if self.exit_rect:
+            if self.exit_rect.colliderect(self.player.hitbox):
+                self.finished_level = True
+                    
     def start_combat_music(self):
         pygame.mixer.music.load(combat_music)
         pygame.mixer.music.play(-1)
+        
+    def load_level(self, map_file):
+        
+        self.finished_level = False
+        
+        self.visable_sprites.empty()
+        self.item_sprites.empty()
+        self.obstacle_sprites.empty()
+        self.enemy_sprites.empty()
+
+        self.tmx_data = load_pygame(map_file)
+
+        self.create_map()
         
 class YSortCameraGroup(pygame.sprite.Group):
     def __init__(self,):

@@ -28,8 +28,8 @@ class WorldEnemy(pygame.sprite.Sprite):
         self.detection_radius = data["detection"]
         self.roam_area = data["roam"]
 
-        self.image = pygame.Surface((TILESIZE, TILESIZE))
-        self.image.fill((200, 50, 50))  # placeholder
+        self.load_sprites()
+        self.image = self.sprites["idle"]
 
         self.rect = self.image.get_rect(topleft=pos)
 
@@ -47,9 +47,21 @@ class WorldEnemy(pygame.sprite.Sprite):
         self.combat_cooldown = 0
         self.immunity_time = 0
         self.immunity_duration = 60
+        self.facing_left = False
         
         self.last_pos = pygame.math.Vector2(self.rect.center)
         self.stuck_timer = 0
+        
+    def load_sprites(self):
+        enemy_path = os.path.join(enemies_path, self.enemy_id)
+        
+        self.sprites = {
+            "idle": pygame.image.load(os.path.join(enemy_path, "idle.png")).convert_alpha(),
+            "dead": pygame.image.load(os.path.join(enemy_path, "dead.png")).convert_alpha()
+        }
+        
+        for key in self.sprites:
+            self.sprites[key] = pygame.transform.scale(self.sprites[key],(TILESIZE, TILESIZE))
         
 
     def get_new_target(self):
@@ -200,26 +212,10 @@ class WorldEnemy(pygame.sprite.Sprite):
             self.become_corpse()
             self.direction = pygame.math.Vector2()
             return
-
-        if result == "run":
-            direction = pygame.math.Vector2(self.rect.center) - pygame.math.Vector2(self.player.rect.center)
-            
-            if direction.length() == 0:
-                direction = pygame.math.Vector2(random.uniform(-1,1), random.uniform(-1,1))
-                
-            direction = direction.normalize()
-            
-            if self.speed > 0:
-                knockback_distance = TILESIZE * 2.5
-                self.rect.center += direction * knockback_distance
-            
-            self.state = "ROAMING"
-            self.roam_target = self.get_new_target()
-            self.direction = pygame.math.Vector2()
-            return
         
         elif result == "lose":
             self.player.rect.topleft = self.player.spawn_pos
+            #self.player.current_health = 10
             
             self.state = "ROAMING"
     
@@ -228,8 +224,7 @@ class WorldEnemy(pygame.sprite.Sprite):
         self.state = "DEAD"
         self.direction = pygame.math.Vector2()
 
-        # visual change (simple corpse)
-        self.image.fill((80, 80, 80))
+        self.image = self.sprites["dead"]
 
     def update(self):
         if self.state == "DEAD":
@@ -265,6 +260,18 @@ class WorldEnemy(pygame.sprite.Sprite):
             self.chase()
 
         self.move()
+        if self.direction.x < -0.1:
+            self.facing_left = True
+        elif self.direction.x > 0.1:
+            self.facing_left = False
+            
+        if self.state != "DEAD":
+            if self.facing_left:
+                self.image = pygame.transform.flip(self.sprites["idle"], True, False)
+            else:
+                self.image = self.sprites["idle"]
+        
+        
         self.check_collision()
 
 ENEMY_DATABASE = {
@@ -272,31 +279,99 @@ ENEMY_DATABASE = {
     "soilder": {
         "name": "Soilder",
         "health": 40,
-        "attack": 4,
-        "defence": 1,
+        "attack": 5,
+        "defence": 3,
         "resistance": {
             "physical": 0.1,
-            "spell": 0.0
+            "spell": 0.3
         },
         "speed": 3,
         "detection": 250,
         "roam": 3,
-        "sprite": "not implemented"
     }
     ,
     "skeleton": {
         "name": "Skeleton",
         "health": 15,
-        "attack": 4,
-        "defence": 2,
+        "attack": 2,
+        "defence": 0,
         "resistance": {
             "physical": 0.0,
-            "spell": 0.5
+            "spell": 0.0
         },
         "speed": 5,
         "detection": 200,
         "roam": 5,
-        "sprite": "not implemented"
+    }
+    ,
+    "zombie": {
+        "name": "Zombie",
+        "health": 40,
+        "attack": 3,
+        "defence": 2,
+        "resistance": {
+            "physical": -0.4,
+            "spell": 0.4
+        },
+        "speed": 2,
+        "detection": 200,
+        "roam": 5,
+    }
+    ,
+    "royal_soilder": {
+        "name": "Royal Soilder",
+        "health": 50,
+        "attack": 10,
+        "defence": 4,
+        "resistance": {
+            "physical": 0.2,
+            "spell": 0.4
+        },
+        "speed": 4,
+        "detection": 300,
+        "roam": 2,
+    }
+    ,
+    "gnome": {
+        "name": "GNOME",
+        "health": 250,
+        "attack": 12,
+        "defence": 4,
+        "resistance": {
+            "physical": 0.5,
+            "spell": -0.2
+        },
+        "speed": 0,
+        "detection": 0,
+        "roam": 0,
+    }
+    ,
+    "king": {
+        "name": "King",
+        "health": 200,
+        "attack": 6,
+        "defence": 2,
+        "resistance": {
+            "physical": 0.2,
+            "spell": -0.3
+        },
+        "speed": 0,
+        "detection": 0,
+        "roam": 0,
+    }
+    ,
+    "queen": {
+        "name": "Queen",
+        "health": 200,
+        "attack": 6,
+        "defence": 2,
+        "resistance": {
+            "physical": -0.3,
+            "spell": 0.2
+        },
+        "speed": 0,
+        "detection": 0,
+        "roam": 0,
     }
     ,
 }
