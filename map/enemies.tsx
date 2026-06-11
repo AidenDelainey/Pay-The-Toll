@@ -26,4 +26,14 @@
    <property name="enemy" value="gnome"/>
   </properties>
  </tile>
+ <tile id="5">
+  <properties>
+   <property name="enemy" value="king"/>
+  </properties>
+ </tile>
+ <tile id="6">
+  <properties>
+   <property name="enemy" value="queen"/>
+  </properties>
+ </tile>
 </tileset>
