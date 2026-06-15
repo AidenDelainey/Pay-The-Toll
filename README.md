@@ -1,6 +1,9 @@
 World Controls
+
 wasd - move
+
 shift - sprint
+
 tab - open/close inventory
 
 Inventory controls
