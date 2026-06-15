@@ -168,7 +168,7 @@ ITEM_DATABASE = {
     ,
      "gold_ring": {
         "name": "Gold Ring",
-        "description": "S	omehow more powerful then silver +5 HEL",
+        "description": "Somehow more powerful then silver +5 HEL",
         "type": "accessory",
         "stats": {"healing": 5},
         "stackable": False,
