@@ -231,7 +231,6 @@ class Level:
         pygame.mixer.music.play(-1)
         
     def load_level(self, map_file):
-        
         self.finished_level = False
         
         self.visable_sprites.empty()
