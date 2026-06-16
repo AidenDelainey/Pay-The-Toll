@@ -203,6 +203,7 @@ class Level:
                 self.display_surface.blit(text, text_rect)
                 
         elif self.game_state == "combat":
+            self.visable_sprites.custom_draw(self.player)
             if self.combat:
                 self.combat.update()
                 self.combat.draw(self.display_surface)
