@@ -82,10 +82,6 @@ class CombatSystem:
         )
         self.heals_used += 1
 
-    def player_run(self):
-        self.result = "run"
-        self.finished = True
-
     # -------------------------
     # ATTACK
     # -------------------------
@@ -289,9 +285,6 @@ class CombatSystem:
                 elif self.selected_option == 2:
                     self.player_heal()
 
-                #elif self.selected_option == 3:
-                    #self.player_run()
-
         elif self.state == "ATTACK_MINIGAME":
             if event.key == pygame.K_SPACE:
                 self.confirm_attack()
@@ -336,7 +329,7 @@ class CombatSystem:
             self.bar_speed *= -1
 
     # -------------------------
-    # DRAW (MULTI ENEMY)
+    # DRAW
     # -------------------------
 
     def draw(self, surface):
